@@ -1,0 +1,25 @@
+## Interface: 100002
+## Title: |cffFFF569PI|r Buddy
+## Notes: Power Infusion Helper
+## Author: rljohn
+## OptionalDeps: _DebugLog
+## SavedVariables: PIBuddyConfig
+## SavedVariablesPerCharacter: PIBuddyPerCharacterConfig
+
+embeds.xml
+
+# Core Files
+config.lua
+config_panels.lua
+classes.lua
+helper.lua
+localisation.lua
+messages.lua
+communication.lua
+events.lua
+buddy.lua
+priest.lua
+dps.lua
+
+# Load last
+main.lua
