@@ -5,7 +5,7 @@ local folder,ns = ...
 local frame_name = 'PIBuddyConfig'
 local opt = CreateFrame('FRAME',frame_name,InterfaceOptionsFramePanelContainer)
 opt.Initialized = false
-opt.name = '|cffFFF569PI|r Buddy'
+opt.name = 'PI Buddy'
 opt.ShouldResetFrames = false
 opt.UpdateInterval = 1.0
 opt.TimeSinceLastUpdate = 0
@@ -25,6 +25,7 @@ opt.HasFocus = false
 opt.HasPI = false
 opt.HasTwins = false
 opt.HasCooldown = false
+opt.IsBuddyDead = false
 
 -- cooldowns
 opt.POWER_INFUSION = 10060 -- pi
@@ -66,6 +67,7 @@ function opt:LoadMissingValues()
 	SetDefaultValue('ShowPriest', true)
 	SetDefaultValue('ShowDps', true)
 	SetDefaultValue('ShowPiMe', true)
+	SetDefaultValue('ShowPiMeGlow', true)
 	SetDefaultValue('ShowCooldownTimers', true)
 	SetDefaultValue('ShowSpellTimers', true)
 	SetDefaultValue('ShowSpellGlow', true)
@@ -79,6 +81,8 @@ function opt:LoadMissingValues()
 	SetDefaultValue('FrameY', -1)
 	SetDefaultValue('ShowPIMe', false)
 	SetDefaultValue('AllowOneWay', true)
+	SetDefaultValue('DpsCooldownAudio', "None")
+	SetDefaultValue('PiMeAudio', "None")
 	
 	-- buddies
 	SetDefaultValue('PriestBuddy', "")
@@ -254,8 +258,6 @@ end
 function opt:OnLogout()
 	-- save settings
 	PIBuddyPerCharacterConfig = opt.env
-	
-	opt:DisablePopups()
 end
 
 function opt:OnPlayerDied()
@@ -329,7 +331,7 @@ end
 
 -- tick functions
 
-function opt:OnUpdate()
+function opt:OnUpdate(elapsed)
 
 	-- Power Infusion
 	if (opt.IsPriest) then
@@ -343,6 +345,10 @@ function opt:OnUpdate()
 		opt:UpdateDpsTimers()
 	else
 		opt:UpdateRemoteDpsTimers()
+	end
+
+	if (opt.IsBuddyDead) then
+		opt:UpdateDeadBuddy(elapsed)
 	end
 end
 

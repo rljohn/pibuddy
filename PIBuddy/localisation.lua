@@ -23,6 +23,16 @@ function opt:SetupLocale()
 		LockButtonHeader = 'Lock Frame',
 		LockButtonTooltip = 'Locks the PIBuddy frame.',
 
+		-- priest-only options
+		PriestConfig = "Priest Config",
+
+		-- sound
+
+		Sound = 'Play Sound on DPS Cooldown',
+		SoundTooltip = 'Sound to play when your buddy activates their cooldown.',
+		SoundPiMe = 'Play Sound on |cffFFF569PI ME|r Request',
+		SoundPiMeTooltip = 'Sound to play when your buddy requests Power Infusion.',
+
 		-- minimap
 		ShowMinimapIcon = 'Show Minimap Icon',
 		ShowMinimapHeader = 'Show Minimap Icon',
@@ -50,6 +60,10 @@ function opt:SetupLocale()
 		ShowPiMeHeader = "Show |cffFFF569PI ME|r Button",
 		ShowPiMeTooltip = 'Show a button to request PI immediately.\n\nYou can also trigger this from a macro by typing:\n\n/pibuddy request',
 
+		ShowPiMeGlow = "Show |cffFFF569PI ME|r Frame Glow",
+		ShowPiMeGlowHeader = "Show |cffFFF569PI ME|r Frame Glow",
+		ShowPiMeGlowTooltip = "Glow your buddy's unit frames after receiving a PI request",
+
 		ShowCooldownTimers = "Show Cooldown Timers",
 		ShowCooldownTimersHeader = "Show Cooldown Timers",
 		ShowCooldownTimersTooltip = "Display a timer when spells are on cooldown",
@@ -66,9 +80,9 @@ function opt:SetupLocale()
 		-- GlowPiMeHeader = Glow Raid Frame',
 		-- GlowPiMeTooltip = "Glow your buddy's unit frame when PI has been requested.",
 		
-		WarnNoBuddy = 'Warn on No Buddy',
-		WarnNoBuddyHeader = 'Warn on No Buddy',
-		WarnNoBuddyTooltip = 'Warn when a Buddy is not set or not available',
+		WarnNoBuddy = 'Warn on Buddy Unavailable',
+		WarnNoBuddyHeader = 'Warn on Buddy Unavailable',
+		WarnNoBuddyTooltip = 'Warn when a Buddy is not set, not in group, disconnected, dead, etc.',
 
 		WarnNoFocus = 'Warn on No Focus',
 		WarnNoFocusHeader = 'Warn on No Focus',
@@ -91,6 +105,7 @@ function opt:SetupLocale()
 		WarningTextNoBuddySync = 'Waiting for PIBuddy Info from %s!',
 		WarningTextDpsBuddyIsAPriest = "DPS Buddy is Invalid Class (Priest)",
 		WarningTextPriestBuddyIsntPriest = "Priest Buddy Is Invalid Class (%s)",
+		WarningTextBuddyDead = "Buddy (%s) is dead!",
 
 		WarningTextNoFocus = 'No Focus Target',
 		WarningTextNoPI = 'Power Infusion - MISSING',
@@ -105,8 +120,8 @@ function opt:SetupLocale()
 		-- spec specific
 		
 		TooltipUnavailable = 'Unavailable',
-		PriestOnlyTooltip = 'This option is only available to Priests.',
-		DpsOnlyTooltip = 'This DPS option is not available to Priests.',
+		PriestOnlyTooltip = 'Only available to Priests.',
+		DpsOnlyTooltip = 'Not available to Priests.',
 		
 		-- frame size
 		
@@ -208,7 +223,8 @@ function opt:SetupLocale()
 		-- cooldowns
 		
 		CooldownConfig = 'Configure Cooldowns',
-		CooldownConfigInfo = "If applicable, select a cooldown for each talent specialization.",
+		CooldownConfigInfo = "Select a cooldown to sync for each talent specialization.",
+		CooldownConfigInfoPriests = "Your buddy can select which cooldown to sync for each talent specialization.\n\nHowever, as a Priest your only purpose is to cast Power Infusion.",
 	}	
 	
 end

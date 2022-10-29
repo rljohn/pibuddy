@@ -1,5 +1,7 @@
 local opt = PIBuddyConfig
-local ADDON_VERSION = "1.02"
+local ADDON_VERSION = "1.08"
+
+local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
 function opt:CreateWidgets()
 
@@ -15,7 +17,7 @@ function opt:CreateWidgets()
 	
 	-- frame panel
 		
-	opt.ui.main = opt:CreatePanel(opt, "MainFrame", 580, 200)
+	opt.ui.main = opt:CreatePanel(opt, "MainFrame", 580, 175)
 	opt.ui.main:SetPoint('TOPLEFT', opt, 'TOPLEFT', 25, -48)
 	
 	opt.ui.controlsTitle = opt:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
@@ -26,30 +28,30 @@ function opt:CreateWidgets()
 	opt.ui.showOptionsLabel:SetText(opt.titles.ShowText)
 	opt.ui.showOptionsLabel:SetPoint('TOPLEFT', opt.ui.main, 'TOPLEFT', 8, -8)
 		
-	opt.ui.showOptions = CreateFrame("Frame", name, opt.ui.main, "UIDropDownMenuTemplate")
-	opt.ui.showOptions:SetPoint('TOPLEFT', opt.ui.showOptionsLabel, 'BOTTOMLEFT', -8, -8)
-	UIDropDownMenu_Initialize(opt.ui.showOptions, function(self, level, menuList)
+	opt.ui.showOptions = LibDD:Create_UIDropDownMenu("PIBuddyShowOptionsDropdown", opt.ui.main)
+	opt.ui.showOptions:SetPoint('TOPLEFT', opt.ui.showOptionsLabel, 'BOTTOMLEFT', -20, -8)
+	LibDD:UIDropDownMenu_Initialize(opt.ui.showOptions, function(self, level, menuList)
 	
-		local info = UIDropDownMenu_CreateInfo()
+		local info = LibDD:UIDropDownMenu_CreateInfo()
 		info.func = function(self, arg1, arg2, checked)
-			UIDropDownMenu_SetSelectedValue(opt.ui.showOptions, arg1)
+			LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.showOptions, arg1)
 			opt.env.ShowButton = arg1
 			opt:ForceUiUpdate()
 		end
 		
 		info.text, info.value, info.arg1, info.arg2 = "Show Always", 1, 1, "Show Always"
-		UIDropDownMenu_AddButton(info)
+		LibDD:UIDropDownMenu_AddButton(info)
 
 		info.text, info.value, info.arg1, info.arg2 = "Combat Only", 2, 2, "Combat Only"
-		UIDropDownMenu_AddButton(info)
+		LibDD:UIDropDownMenu_AddButton(info)
 		
 		info.text, info.value, info.arg1, info.arg2 = "Group Only", 3, 3, "Group Only"
-		UIDropDownMenu_AddButton(info)
+		LibDD:UIDropDownMenu_AddButton(info)
 		
 		info.text, info.value, info.arg1, info.arg2 = "Never", 4, 4, "Never"
-		UIDropDownMenu_AddButton(info)
+		LibDD:UIDropDownMenu_AddButton(info)
 		
-		UIDropDownMenu_SetSelectedValue(opt.ui.showOptions, opt.env.ShowButton)
+		LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.showOptions, opt.env.ShowButton)
 	end)
 	opt:AddTooltip(opt.ui.showOptionsLabel, opt.titles.ShowText, opt.titles.ShowTextTooltip)
 	opt:AddTooltip(opt.ui.showOptions, opt.titles.ShowText, opt.titles.ShowTextTooltip)
@@ -88,17 +90,27 @@ function opt:CreateWidgets()
 		end)
 	opt:AddTooltip(opt.ui.showTitle, opt.titles.ShowTitleHeader, opt.titles.ShowTitleTooltip)
 	
-	-- show priest
+	opt.ui.showMinimap = opt:CreateCheckBox(opt, 'ShowMinimapIcon')
+	opt.ui.showMinimap:SetPoint("TOPLEFT", opt.ui.showTitle, "TOPLEFT", 0, -25)
+	opt.ui.showMinimap:SetScript('OnClick', function(self, event, ...)
+			opt:CheckBoxOnClick(self)
+			opt:MinimapUpdate()
+		end)
+	opt:AddTooltip(opt.ui.showMinimap, opt.titles.ShowMinimapHeader, opt.titles.ShowMinimapTooltip)	
 	
+	------------------------------
+
+	-- show priest
+
 	opt.ui.showPriest = opt:CreateCheckBox(opt, 'ShowPriest')
-	opt.ui.showPriest:SetPoint("TOPLEFT", opt.ui.showTitle, "TOPLEFT", 0, -25)
+	opt.ui.showPriest:SetPoint("TOPLEFT", opt.ui.main, "TOPLEFT",  200, -70)
 	opt.ui.showPriest:SetScript('OnClick', function(self, event, ...)
 			opt:CheckBoxOnClick(self)
 			opt:ForceUiUpdate()
 		end)
 	opt:AddTooltip(opt.ui.showPriest, opt.titles.ShowPriestHeader, opt.titles.ShowPriestTooltip)
 	
-	-- show priest
+	-- show dps
 	
 	opt.ui.showDps = opt:CreateCheckBox(opt, 'ShowDps')
 	opt.ui.showDps:SetPoint("TOPLEFT", opt.ui.showPriest, "TOPLEFT", 0, -25)
@@ -107,19 +119,9 @@ function opt:CreateWidgets()
 			opt:ForceUiUpdate()
 		end)
 	opt:AddTooltip(opt.ui.showDps, opt.titles.ShowDpsHeader, opt.titles.ShowDpsTooltip)
-	
-	------------------------------
-	
-	opt.ui.showMinimap = opt:CreateCheckBox(opt, 'ShowMinimapIcon')
-	opt.ui.showMinimap:SetPoint("TOPLEFT", opt.ui.main, "TOPLEFT", 200, -70)
-	opt.ui.showMinimap:SetScript('OnClick', function(self, event, ...)
-			opt:CheckBoxOnClick(self)
-			opt:MinimapUpdate()
-		end)
-	opt:AddTooltip(opt.ui.showMinimap, opt.titles.ShowMinimapHeader, opt.titles.ShowMinimapTooltip)
 
 	opt.ui.showPIMe = opt:CreateCheckBox(opt, 'ShowPiMe')
-	opt.ui.showPIMe:SetPoint("TOPLEFT", opt.ui.showMinimap, "TOPLEFT", 0, -25)
+	opt.ui.showPIMe:SetPoint("TOPLEFT", opt.ui.showDps, "TOPLEFT", 0, -25)
 	opt.ui.showPIMe:SetScript('OnClick', function(self, event, ...)
 			opt:CheckBoxOnClick(self)
 			opt:ForceUiUpdate()
@@ -131,10 +133,12 @@ function opt:CreateWidgets()
 	else
 		opt:AddTooltip(opt.ui.showPIMe, opt.titles.ShowPiMeHeader, opt.titles.ShowPiMeTooltip)
 	end
+
+	-- column 3
+
 	
-		
 	opt.ui.showCdTimers = opt:CreateCheckBox(opt, 'ShowCooldownTimers')
-	opt.ui.showCdTimers:SetPoint("TOPLEFT", opt.ui.showPIMe, "TOPLEFT", 0, -25)
+	opt.ui.showCdTimers:SetPoint("TOPLEFT", opt.ui.main, "TOPLEFT", 400, -70)
 	opt.ui.showCdTimers:SetScript('OnClick', function(self, event, ...)
 			opt:CheckBoxOnClick(self)
 			opt:ForceUiUpdate()
@@ -157,60 +161,12 @@ function opt:CreateWidgets()
 		end)
 	opt:AddTooltip(opt.ui.showSpellGlow, opt.titles.ShowSpellGlowHeader, opt.titles.ShowSpellGlowTooltip)
 
-
-	------------------------------
-
-	opt.ui.warnNoBuddy = opt:CreateCheckBox(opt, 'WarnNoBuddy')
-	opt.ui.warnNoBuddy:SetPoint("TOPLEFT", opt.ui.main, "TOPLEFT", 400, -90)
-	opt.ui.warnNoBuddy:SetScript('OnClick', function(self, event, ...)
-			opt:CheckBoxOnClick(self)
-			opt:ForceUiUpdate()
-		end)
-	opt:AddTooltip(opt.ui.warnNoBuddy, opt.titles.WarnNoBuddyHeader, opt.titles.WarnNoBuddyTooltip)
-
-	opt.ui.warnNoFocus = opt:CreateCheckBox(opt, 'WarnNoFocus')
-	opt.ui.warnNoFocus:SetPoint("TOPLEFT", opt.ui.warnNoBuddy, "TOPLEFT", 0, -25)
-	opt.ui.warnNoFocus:SetScript('OnClick', function(self, event, ...)
-			opt:CheckBoxOnClick(self)
-			opt:ForceUiUpdate()
-		end)
-
-	opt.ui.warnNoPI = opt:CreateCheckBox(opt, 'WarnNoPowerInfusion')
-	opt.ui.warnNoPI:SetPoint("TOPLEFT", opt.ui.warnNoFocus, "TOPLEFT", 0, -25)
-	opt.ui.warnNoPI:SetScript('OnClick', function(self, event, ...)
-			opt:CheckBoxOnClick(self)
-			opt:ForceUiUpdate()
-		end)	
-
-	opt.ui.warnNoTwins = opt:CreateCheckBox(opt, 'WarnNoTwins')
-	opt.ui.warnNoTwins:SetPoint("TOPLEFT", opt.ui.warnNoPI, "TOPLEFT", 0, -25)
-	opt.ui.warnNoTwins:SetScript('OnClick', function(self, event, ...)
-			opt:CheckBoxOnClick(self)
-			opt:ForceUiUpdate()
-		end)
-
-	if (opt.IsPriest) then
-		opt:AddTooltip(opt.ui.warnNoFocus, opt.titles.WarnNoFocusHeader, opt.titles.WarnNoFocusTooltip)
-		opt:AddTooltip(opt.ui.warnNoPI, opt.titles.WarnNoPowerInfusionHeader, opt.titles.WarnNoPowerInfusionTooltip)
-		opt:AddTooltip(opt.ui.warnNoTwins, opt.titles.WarnNoTwinsHeader, opt.titles.WarnNoTwinsTooltip)
-	else
-		opt.ui.warnNoFocus:Disable()
-		opt.ui.warnNoFocus.label:SetAlpha(0.5)
-		opt.ui.warnNoPI:Disable()
-		opt.ui.warnNoPI.label:SetAlpha(0.5)
-		opt.ui.warnNoTwins:Disable()
-		opt.ui.warnNoTwins.label:SetAlpha(0.5)
-		opt:AddTooltip(opt.ui.warnNoFocus, opt.titles.TooltipUnavailable, opt.titles.PriestOnlyTooltip)
-		opt:AddTooltip(opt.ui.warnNoPI, opt.titles.TooltipUnavailable, opt.titles.PriestOnlyTooltip)
-		opt:AddTooltip(opt.ui.warnNoTwins, opt.titles.TooltipUnavailable, opt.titles.PriestOnlyTooltip)
-	end
-
 	------------------------------
 	
 	-- size
 	
 	opt.ui.iconSize = opt:CreateSlider(opt, 'IconSize', 48, 128, 16, 140)
-	opt.ui.iconSize:SetPoint("TOPLEFT", opt.ui.main, "TOPLEFT", 210, -30)
+	opt.ui.iconSize:SetPoint("TOPLEFT", opt.ui.main, "TOPLEFT", 205, -26)
 	opt.ui.iconSize:SetScript("OnValueChanged", function(self, value, ...)
 			opt:OnSliderValueChanged(self, value)
 			opt:OnResize()
@@ -219,7 +175,12 @@ function opt:CreateWidgets()
 		
 	opt:CreatePartyConfig()
 	opt:CreateRaidConfig()
-	opt:CreateCooldownConfig()
+
+	if (opt.IsPriest) then
+		opt:CreatePriestConfig()
+	else
+		opt:CreateCooldownConfig()
+	end
 
 	opt.ui.allowOneWay = opt:CreateCheckBox(opt, 'AllowOneWay')
 	opt.ui.allowOneWay:SetPoint("TOPLEFT", opt.ui.raidConfig, "BOTTOMLEFT", -8, -16)
@@ -714,7 +675,11 @@ function opt:CreateCooldownConfig()
 	info_text:SetWordWrap(true)
 	info_text:SetWidth(258)
 	info_text:SetJustifyH('LEFT')
-	info_text:SetText(opt.titles.CooldownConfigInfo)
+	if (opt.IsPriest) then
+		info_text:SetText(opt.titles.CooldownConfigInfoPriests)
+	else
+		info_text:SetText(opt.titles.CooldownConfigInfo)
+	end
 	info_text:SetPoint('TOPLEFT', opt.ui.cooldownConfig, 'TOPLEFT', 4, -4)
 	
 	local classCooldowns = opt:GetClassInfo(opt.PlayerClass)
@@ -736,9 +701,9 @@ function opt:CreateCooldownConfig()
 			end
 			
 			local hasCooldowns = false
-			local cooldownSelection = CreateFrame("Frame", name, opt.ui.cooldownConfig, "UIDropDownMenuTemplate")
+			local cooldownSelection = LibDD:Create_UIDropDownMenu("PIBuddyDPSCDDropdown" .. i, opt.ui.cooldownConfig)
 			cooldownSelection:SetPoint('TOPLEFT', label, 'BOTTOMLEFT', -20, -8)
-			UIDropDownMenu_Initialize(cooldownSelection, function(self, level, menuList)
+			LibDD:UIDropDownMenu_Initialize(cooldownSelection, function(self, level, menuList)
 			
 				for index,cooldown in opt:pairsByKeys ( spec_cds ) do
 					local spell_id = cooldown[1]
@@ -758,25 +723,26 @@ function opt:CreateCooldownConfig()
 					info.value = spell_id
 					
 					info.func = function(self, arg1, arg2, checked)
-						UIDropDownMenu_SetSelectedID(cooldownSelection, self:GetID())
+						if (opt.IsPriest) then return end
+						LibDD:UIDropDownMenu_SetSelectedID(cooldownSelection, self:GetID())
 						opt.env.Cooldowns[spec_id] = arg1
 						opt:CheckDpsCooldownInfo()
 						opt:ClearDpsCooldown()
 						opt:NotifyDpsInfoChanged()
 					end
-					UIDropDownMenu_AddButton(info)
+					LibDD:UIDropDownMenu_AddButton(info)
 					hasCooldowns = true
 				end
 			end)
 			
-			UIDropDownMenu_SetWidth(cooldownSelection, 256)
+			LibDD:UIDropDownMenu_SetWidth(cooldownSelection, 256)
 			
 			if (not hasCooldowns) then
-				UIDropDownMenu_SetText(cooldownSelection, "N/A")
+				LibDD:UIDropDownMenu_SetText(cooldownSelection, "N/A")
 			elseif (opt.env.Cooldowns[spec_id]) then
-				UIDropDownMenu_SetSelectedValue(cooldownSelection, opt.env.Cooldowns[spec_id])
+				LibDD:UIDropDownMenu_SetSelectedValue(cooldownSelection, opt.env.Cooldowns[spec_id])
 			else
-				UIDropDownMenu_SetSelectedID(cooldownSelection, 1)
+				LibDD:UIDropDownMenu_SetSelectedID(cooldownSelection, 1)
 			end
 			
 			prevAnchor = label
@@ -785,6 +751,279 @@ function opt:CreateCooldownConfig()
 	end
 end
 
+-- Sound
+
+function opt:CreateCooldownSoundWidgets()
+
+	local media = LibStub("LibSharedMedia-3.0")
+	
+	opt.ui.DpsCooldownSound = LibDD:Create_UIDropDownMenu("PIBuddySoundDropdown", opt.ui.main)
+	local SoundDB = media:List("sound")
+
+	local PER_PAGE = 25
+
+	LibDD:UIDropDownMenu_Initialize(opt.ui.DpsCooldownSound, function(self, level, menuList)
+
+		-- reset to populate
+		local SoundDB = media:List("sound")
+		local NumSounds = getn(SoundDB)
+		local NumCategories = NumSounds / PER_PAGE
+
+		-- find the selected index
+		local selectedIndex = 0
+		local selectedPage = 0
+		for i = 1, #SoundDB do
+			local sound = SoundDB[i]
+			if (sound == opt.env.DpsCooldownAudio) then
+				selectedPage = floor(i / PER_PAGE) + 1
+				break
+			end
+		end
+
+		-- #1 option is to play power infusion sound
+		if (not level or level == 1) then
+			local powerInfusion = UIDropDownMenu_CreateInfo()
+			powerInfusion.text = "Power Infusion"
+			powerInfusion.arg1 = "Power Infuison"
+			powerInfusion.value = "Power Infusion"
+			powerInfusion.func = function(self)
+				opt.env.DpsCooldownAudio = self.value
+				PlaySound(170678)
+				LibDD:CloseDropDownMenus()
+				LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.DpsCooldownSound, opt.env.DpsCooldownAudio)
+			end
+			LibDD:UIDropDownMenu_AddButton(powerInfusion)
+		end
+
+		-- build the page
+		if (NumSounds > 1 and (level == 1 or level == nil)) then
+			
+			-- add categories
+			for i = 1, NumCategories do
+				local info = UIDropDownMenu_CreateInfo()
+				info.text = "Page " .. i
+				info.func = nil
+				info.hasArrow = true
+				info.menuList = i
+				info.checked = (selectedPage == i)
+				LibDD:UIDropDownMenu_AddButton(info)
+			end
+
+		elseif (menuList or NumSounds == 1) then
+
+			local startIdx = (menuList and (menuList-1) * PER_PAGE) or 1
+			local endIdx = startIdx + PER_PAGE
+
+			for i = 1, #SoundDB do
+
+				if (i >= startIdx and i < endIdx) then
+				
+					local sound = SoundDB[i]
+
+					local info = UIDropDownMenu_CreateInfo()
+					info.text = sound
+					info.arg1 = sound
+					info.value = sound
+					info.checked = (opt.env.DpsCooldownAudio == sound)
+
+					info.func = function(self)
+
+						opt.env.DpsCooldownAudio = self.value
+
+						local soundFile = media:Fetch("sound", self.value)
+						if (soundFile) then
+							PlaySoundFile(soundFile)
+						end
+
+						LibDD:CloseDropDownMenus()
+						LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.DpsCooldownSound, opt.env.DpsCooldownAudio)
+					end
+					LibDD:UIDropDownMenu_AddButton(info, level)
+				end
+			end
+		end
+	end)
+
+	LibDD:UIDropDownMenu_SetWidth(opt.ui.DpsCooldownSound, 220)
+	opt.ui.DpsCooldownSound:SetPoint("TOPLEFT", opt.ui.priestConfig, "TOPLEFT", 0, -32)
+
+	if (opt.env.DpsCooldownAudio and opt.env.DpsCooldownAudio ~= "") then
+		LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.DpsCooldownSound, opt.env.DpsCooldownAudio)
+		LibDD:UIDropDownMenu_SetText(opt.ui.DpsCooldownSound, opt.env.DpsCooldownAudio)
+	else
+		LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.DpsCooldownSound, "Power Infusion")
+	end
+
+	opt.ui.soundLabel = opt:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
+	opt.ui.soundLabel:SetText(opt.titles.Sound)
+	opt.ui.soundLabel:SetPoint('BOTTOMLEFT', opt.ui.DpsCooldownSound, 'TOPLEFT', 20, 6)
+	opt:AddTooltip(opt.ui.soundLabel, opt.titles.Sound, opt.titles.SoundTooltip)
+	opt:AddTooltip(opt.ui.DpsCooldownSound, opt.titles.Sound, opt.titles.SoundTooltip)
+end
+
+function opt:CreatePiMeSoundWidgets()
+
+	local media = LibStub("LibSharedMedia-3.0")
+	local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
+	
+	opt.ui.PiMeCooldownSound = LibDD:Create_UIDropDownMenu("PIBuddyPiMeDropdown", opt.ui.main)
+	local SoundDB = media:List("sound")
+
+	local PER_PAGE = 25
+
+	LibDD:UIDropDownMenu_Initialize(opt.ui.PiMeCooldownSound, function(self, level, menuList)
+
+		-- reset to populate
+		local SoundDB = media:List("sound")
+		local NumSounds = getn(SoundDB)
+		local NumCategories = NumSounds / PER_PAGE
+
+		-- find the selected index
+		local selectedIndex = 0
+		local selectedPage = 0
+		for i = 1, #SoundDB do
+			local sound = SoundDB[i]
+			if (sound == opt.env.PiMeAudio) then
+				selectedPage = floor(i / PER_PAGE) + 1
+				break
+			end
+		end
+
+		-- #1 option is to play power infusion sound
+		if (not level or level == 1) then
+			local powerInfusion = UIDropDownMenu_CreateInfo()
+			powerInfusion.text = "Power Infusion"
+			powerInfusion.arg1 = "Power Infuison"
+			powerInfusion.value = "Power Infusion"
+			powerInfusion.func = function(self)
+				opt.env.PiMeAudio = self.value
+				PlaySound(170678)
+				LibDD:CloseDropDownMenus()
+				LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.PiMeCooldownSound, opt.env.PiMeAudio)
+			end
+			LibDD:UIDropDownMenu_AddButton(powerInfusion)
+		end
+
+		-- build the page
+		if (NumSounds > 1 and (level == 1 or level == nil)) then
+			
+			-- add categories
+			for i = 1, NumCategories do
+				local info = UIDropDownMenu_CreateInfo()
+				info.text = "Page " .. i
+				info.func = nil
+				info.hasArrow = true
+				info.menuList = i
+				info.checked = (selectedPage == i)
+				LibDD:UIDropDownMenu_AddButton(info)
+			end
+
+		elseif (menuList or NumSounds == 1) then
+
+			local startIdx = (menuList and (menuList-1) * PER_PAGE) or 1
+			local endIdx = startIdx + PER_PAGE
+
+			for i = 1, #SoundDB do
+
+				if (i >= startIdx and i < endIdx) then
+				
+					local sound = SoundDB[i]
+
+					local info = UIDropDownMenu_CreateInfo()
+					info.text = sound
+					info.arg1 = sound
+					info.value = sound
+					info.checked = (opt.env.PiMeAudio == sound)
+
+					info.func = function(self)
+
+						opt.env.PiMeAudio = self.value
+
+						local soundFile = media:Fetch("sound", self.value)
+						if (soundFile) then
+							PlaySoundFile(soundFile)
+						end
+
+						LibDD:CloseDropDownMenus()
+						LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.PiMeCooldownSound, opt.env.PiMeAudio)
+					end
+					LibDD:UIDropDownMenu_AddButton(info, level)
+				end
+			end
+		end
+	end)
+
+	LibDD:UIDropDownMenu_SetWidth(opt.ui.PiMeCooldownSound, 220)
+	opt.ui.PiMeCooldownSound:SetPoint("TOPLEFT", opt.ui.DpsCooldownSound, "BOTTOMLEFT", 0, -32)
+
+	if (opt.env.PiMeAudio and opt.env.PiMeAudio ~= "") then
+		LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.PiMeCooldownSound, opt.env.PiMeAudio)
+		LibDD:UIDropDownMenu_SetText(opt.ui.PiMeCooldownSound, opt.env.PiMeAudio)
+	else
+		LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.PiMeCooldownSound, "Power Infusion")
+	end
+
+	opt.ui.piMeSoundLabel = opt:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
+	opt.ui.piMeSoundLabel:SetText(opt.titles.SoundPiMe)
+	opt.ui.piMeSoundLabel:SetPoint('BOTTOMLEFT', opt.ui.PiMeCooldownSound, 'TOPLEFT', 20, 6)
+	opt:AddTooltip(opt.ui.piMeSoundLabel, opt.titles.SoundPiMe, opt.titles.SoundPiMeTooltip)
+	opt:AddTooltip(opt.ui.PiMeCooldownSound, opt.titles.SoundPiMe, opt.titles.SoundPiMeTooltip)
+end
+
+function opt:CreatePriestConfig()
+
+	opt.ui.priestConfig = opt:CreatePanel(opt, "ConfigFrame", 258, 264)
+	opt.ui.priestConfig:SetPoint('TOPLEFT', opt.ui.partyConfig, 'TOPRIGHT', 64, 0)
+	
+	opt.ui.priestConfigTitle = opt:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+	opt.ui.priestConfigTitle:SetText(opt.titles.PriestConfig)
+	opt.ui.priestConfigTitle:SetPoint('TOPLEFT', opt.ui.priestConfig, 'TOPLEFT', 0, 32)
+
+	opt:CreateCooldownSoundWidgets()
+	opt:CreatePiMeSoundWidgets()
+
+	opt.ui.piMeGlow = opt:CreateCheckBox(opt, 'ShowPiMeGlow')
+	opt.ui.piMeGlow:SetPoint("TOPLEFT", opt.ui.PiMeCooldownSound, "BOTTOMLEFT", 16, -6)
+	opt.ui.piMeGlow:SetScript('OnClick', function(self, event, ...)
+			opt:CheckBoxOnClick(self)
+			opt:ForceUiUpdate()
+		end)
+	opt:AddTooltip(opt.ui.piMeGlow, opt.titles.ShowPiMeGlowHeader, opt.titles.ShowPiMeGlowTooltip)
+
+	opt.ui.warnNoBuddy = opt:CreateCheckBox(opt, 'WarnNoBuddy')
+	opt.ui.warnNoBuddy:SetPoint("TOPLEFT", opt.ui.piMeGlow, "TOPLEFT", 0, -25)
+	opt.ui.warnNoBuddy:SetScript('OnClick', function(self, event, ...)
+			opt:CheckBoxOnClick(self)
+			opt:ForceUiUpdate()
+		end)
+	opt:AddTooltip(opt.ui.warnNoBuddy, opt.titles.WarnNoBuddyHeader, opt.titles.WarnNoBuddyTooltip)
+
+	opt.ui.warnNoFocus = opt:CreateCheckBox(opt, 'WarnNoFocus')
+	opt.ui.warnNoFocus:SetPoint("TOPLEFT", opt.ui.warnNoBuddy, "TOPLEFT", 0, -25)
+	opt.ui.warnNoFocus:SetScript('OnClick', function(self, event, ...)
+			opt:CheckBoxOnClick(self)
+			opt:ForceUiUpdate()
+		end)
+
+	opt.ui.warnNoPI = opt:CreateCheckBox(opt, 'WarnNoPowerInfusion')
+	opt.ui.warnNoPI:SetPoint("TOPLEFT", opt.ui.warnNoFocus, "TOPLEFT", 0, -25)
+	opt.ui.warnNoPI:SetScript('OnClick', function(self, event, ...)
+			opt:CheckBoxOnClick(self)
+			opt:ForceUiUpdate()
+		end)	
+
+	opt.ui.warnNoTwins = opt:CreateCheckBox(opt, 'WarnNoTwins')
+	opt.ui.warnNoTwins:SetPoint("TOPLEFT", opt.ui.warnNoPI, "TOPLEFT", 0, -25)
+	opt.ui.warnNoTwins:SetScript('OnClick', function(self, event, ...)
+			opt:CheckBoxOnClick(self)
+			opt:ForceUiUpdate()
+		end)
+
+	opt:AddTooltip(opt.ui.warnNoFocus, opt.titles.WarnNoFocusHeader, opt.titles.WarnNoFocusTooltip)
+	opt:AddTooltip(opt.ui.warnNoPI, opt.titles.WarnNoPowerInfusionHeader, opt.titles.WarnNoPowerInfusionTooltip)
+	opt:AddTooltip(opt.ui.warnNoTwins, opt.titles.WarnNoTwinsHeader, opt.titles.WarnNoTwinsTooltip)
+end
+	
 -- Widget Visiblility
 
 function opt:ForceUiUpdate()
@@ -808,6 +1047,7 @@ function opt:ForceUiUpdate()
 	opt:SetMainFramePriestVisible(opt.env.ShowPriest)
 	opt:SetMainFrameDpsVisible(opt.env.ShowDps)
 	opt:SetMainFramePiMeButton(opt.env.ShowPiMe)
+	opt:SetMainFrameCheckPriestVisibility()
 	opt:SetMainFrameCheckDpsVisibility()
 	opt:SetMainFrameNoBuddyWarningVisible(opt.env.WarnNoBuddy)
 	opt:SetMainFrameNoFocusWarningVisible(opt.env.WarnNoFocus)

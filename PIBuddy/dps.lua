@@ -29,6 +29,9 @@ function opt:CreateDpsWidgets(m)
 		-- stop dragging main
 		if (button == "LeftButton") then 
 			main:StopMovingOrSizing()
+			local x, y = main:GetLeft(), main:GetTop()
+			opt.env.FrameX = x
+			opt.env.FrameY = y
 			return
 		end
 	end)
@@ -74,8 +77,8 @@ function opt:CreateDpsWidgets(m)
 end
 
 function opt:SetMainFrameCheckDpsVisibility()
+
 	if (not opt.env.ShowCooldownTimers) then
-		main.dpsCooldown:Hide()
 		main.dpsCooldownText:Hide()
 	end
 
@@ -151,11 +154,13 @@ function opt:SetDpsSpellId(spell_id)
 end
 
 function opt:UpdateDpsAlpha()
-	if (opt.DpsInfo.spell_id > 0) then
+	if (opt.DpsInfo.is_dead) then
+		main.coolDownSpellTexture.texture:SetAlpha(0.25)
+	elseif (opt.DpsInfo.spell_id > 0) then
 		if (DPS_CD_Active) then
 			main.coolDownSpellTexture.texture:SetAlpha(1)
 		else
-			main.coolDownSpellTexture.texture:SetAlpha(0.5)
+			main.coolDownSpellTexture.texture:SetAlpha(0.8)
 		end
 	else
 		main.coolDownSpellTexture.texture:SetAlpha(0.25)
@@ -362,9 +367,11 @@ function opt:UpdateDpsCooldown()
 		opt.DpsInfo.cooldown_remaining = cd_remaining
 
 		-- if we're running in DPS mode, we only update as the result of messages
-		if (not DPS_CD_Active and opt.env.ShowCooldownTimers) then
-			main.dpsCooldownText:Show()
-			main.dpsCooldownText:SetText(string.format("%.1f", cd_remaining))
+		if (not DPS_CD_Active) then
+			if (opt.env.ShowCooldownTimers) then
+				main.dpsCooldownText:Show()
+				main.dpsCooldownText:SetText(string.format("%.1f", cd_remaining))
+			end
 			main.dpsCooldown:SetCooldown(start, duration)
 		end
 	else
@@ -401,6 +408,8 @@ local remote_active_start = -1
 local remote_active_end = -1
 local remote_active_duration = -1
 
+local media = LibStub("LibSharedMedia-3.0")
+
 function opt:OnReceivedDpsActivity(active_time)
 	local active = (active_time >= 0)
 
@@ -410,6 +419,18 @@ function opt:OnReceivedDpsActivity(active_time)
 		remote_active_duration = active_time
 		remote_active_end = remote_active_start + remote_active_duration
 		opt:OnGainDpsCooldown()
+
+		if (opt.env.DpsCooldownAudio and opt.env.DpsCooldownAudio ~= "None") then
+			if (opt.env.DpsCooldownAudio == "Power Infusion") then
+				PlaySound(170678)
+			else
+				local soundFile = media:Fetch("sound", opt.env.DpsCooldownAudio)
+				if (soundFile) then
+					PlaySoundFile(soundFile)
+				end
+			end
+		end
+
 	else
 		remote_active_start = -1
 		remote_active_end = -1
@@ -498,9 +519,11 @@ function opt:UpdateRemoteDpsCooldown()
 	-- if on cooldown, display text
 	-- if not, hide the cooldown text
 	local on_cooldown = (cd_remaining > 0)
-	if (on_cooldown and not DPS_CD_Active and opt.env.ShowCooldownTimers) then
-		main.dpsCooldownText:Show()
-		main.dpsCooldownText:SetText(string.format("%.1f", cd_remaining))
+	if (on_cooldown and not DPS_CD_Active) then
+		if (opt.env.ShowCooldownTimers) then
+			main.dpsCooldownText:Show()
+			main.dpsCooldownText:SetText(string.format("%.1f", cd_remaining))
+		end
 		main.dpsCooldown:SetCooldown(remote_startTime, remote_duration)
 	else
 		main.dpsCooldown:SetCooldown(0, 0)

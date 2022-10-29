@@ -108,12 +108,18 @@ function opt:OnCombatEvent(...)
 	elseif (subevent == "SPELL_CAST_SUCCESS") then
 
 		-- We're the DPS player - check if we have a active-time override for this spell.
-		if (not opt.IsPriest and (sourceGUID == opt.PlayerGUID)) then
+		if (sourceGUID == opt.PlayerGUID) then
 			local spell_id = select(12,...)
-			if (spell_id == opt.DpsInfo.spell_id) then
-				local aura_timer = DPSBuddySpellActiveTime[spell_id]
-				if (aura_timer) then
-					opt:SimulateDpsCooldown(aura_timer)
+			if (opt.IsPriest) then
+				if (spell_id == opt.POWER_INFUSION) then
+					opt:OnCastPowerInfusion()
+				end
+			else
+				if (spell_id == opt.DpsInfo.spell_id) then
+					local aura_timer = DPSBuddySpellActiveTime[spell_id]
+					if (aura_timer) then
+						opt:SimulateDpsCooldown(aura_timer)
+					end
 				end
 			end
 		end
@@ -148,6 +154,9 @@ function opt:OnCombatEvent(...)
 				end
 			end
 		end
+	
+	elseif (subevent == "UNIT_DIED") then
+		opt:CheckBuddyDead(sourceGUID)
 	end
 end
 

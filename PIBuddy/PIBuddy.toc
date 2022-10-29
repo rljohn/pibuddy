@@ -1,5 +1,5 @@
-## Interface: 100002
-## Title: |cffFFF569PI|r Buddy
+## Interface: 100000
+## Title: PI Buddy
 ## Notes: Power Infusion Helper
 ## Author: rljohn
 ## OptionalDeps: _DebugLog

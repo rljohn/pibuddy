@@ -12,10 +12,17 @@ local PiMeGlowTime = 0
 
 -- WIDGETS
 
+local LGF = LibStub("LibGetFrame-1.0")
+
 function opt:CreatePriestWidgets(m)
 
 	-- PI texture
 	main = m
+
+	-- early-init lgf
+	if (LGF) then
+		LGF.GetUnitFrame("player")
+	end
 	
 	main.piSpellTexture = CreateFrame('FRAME', nil, main, "BackdropTemplate")
 	main.piSpellTexture:SetPoint('LEFT', main, 'LEFT', 16, 0)
@@ -31,6 +38,9 @@ function opt:CreatePriestWidgets(m)
 		-- stop dragging main
 		if (button == "LeftButton") then 
 			main:StopMovingOrSizing()
+			local x, y = main:GetLeft(), main:GetTop()
+			opt.env.FrameX = x
+			opt.env.FrameY = y
 			return
 		end
 	end)
@@ -87,8 +97,8 @@ function opt:SetMainFramePriestVisible(visible)
 end
 
 function opt:SetMainFrameCheckPriestVisibility()
+
 	if (not opt.env.ShowCooldownTimers) then
-		main.piCooldown:Hide()
 		main.piCooldownText:Hide()
 	end
 
@@ -182,11 +192,13 @@ function opt:UpdatePowerInfusionAura()
 end
 
 function opt:UpdatePIAlpha()
-	if (opt.PriestInfo.spell_id > 0) then
+	if (opt.PriestInfo.is_dead) then
+		main.coolDownSpellTexture.texture:SetAlpha(0.25)
+	elseif (opt.PriestInfo.spell_id > 0) then
 		if (PI_Active) then
 			main.piSpellTexture.texture:SetAlpha(1)
 		else
-			main.piSpellTexture.texture:SetAlpha(0.5)
+			main.piSpellTexture.texture:SetAlpha(0.8)
 		end
 	else
 		main.piSpellTexture.texture:SetAlpha(0.25)
@@ -197,11 +209,54 @@ end
 -- pi me request
 ---------------------------------
 
+local media = LibStub("LibSharedMedia-3.0")
+local buddyFrame = nil
+
 function opt:OnReceivedPIRequest()
+
 	if (PiMeGlowTime == 0) then
-		Glower.PixelGlow_Start (main)
+
+		-- play a noise
+		if (opt.env.PiMeAudio and opt.env.PiMeAudio ~= "None") then
+			if (opt.env.PiMeAudio == "Power Infusion") then
+				PlaySound(170678)
+			else
+				local soundFile = media:Fetch("sound", opt.env.PiMeAudio)
+				if (soundFile) then
+					PlaySoundFile(soundFile)
+				end
+			end
+		end
+
+		-- glow the raid frame
+		if (opt.env.ShowPiMeGlow) then
+
+			if (opt.env.ShowBackground) then
+				Glower.PixelGlow_Start (main)
+			end
+
+			local player = opt:FindPlayer(opt.DpsInfo.name)
+			if (player) then
+				if (LGF) then
+					buddyFrame = LGF.GetUnitFrame(player, {
+						ignorePlayerFrame = false,
+						ignoreTargetFrame = false,
+						ignoreTargettargetFrame = false,
+						returnAll = true,
+					  })
+					
+					-- find all frames for that player
+					if (buddyFrame) then
+						for _, frame in pairs(buddyFrame) do
+							Glower.PixelGlow_Start(frame)
+						end
+					end
+				end
+			end
+		end
+		
+		PiMeGlowTime = GetTime()
 	end
-	PiMeGlowTime = GetTime()
 end
 
 function opt:UpdatePiMeRequest()
@@ -209,9 +264,23 @@ function opt:UpdatePiMeRequest()
 	if (PiMeGlowTime > 0) then
 		if (GetTime() - 5 > PiMeGlowTime) then
 			Glower.PixelGlow_Stop(main)
+			
+			if (buddyFrame) then
+				for _, frame in pairs(buddyFrame) do
+					if (frame) then
+						Glower.PixelGlow_Stop(frame)
+					end
+				end
+			end
+
 			PiMeGlowTime = 0
 		end
 	end
+end
+
+function opt:OnCastPowerInfusion()
+	-- trigger a stop of the PI glows
+	PiMeGlowTime = 1
 end
 
 ---------------------------------
@@ -278,9 +347,11 @@ function opt:UpdatePowerInfusionCooldown()
 		opt.PriestInfo.cooldown_remaining = cd_remaining
 
 		-- if we're running in DPS mode, we only update as the result of messages
-		if (not PI_Active and opt.env.ShowCooldownTimers) then
-			main.piCooldownText:Show()
-			main.piCooldownText:SetText(string.format("%.1f", cd_remaining))
+		if (not PI_Active) then
+			if (opt.env.ShowCooldownTimers) then
+				main.piCooldownText:Show()
+				main.piCooldownText:SetText(string.format("%.1f", cd_remaining))
+			end
 			main.piCooldown:SetCooldown(start, duration)
 		end
 
@@ -362,9 +433,11 @@ function opt:UpdateRemotePowerInfusionCooldown()
 	-- if on cooldown, display text
 	-- if not, hide the cooldown text
 	local on_cooldown = (cd_remaining > 0)
-	if (on_cooldown and not PI_Active and opt.env.ShowCooldownTimers) then
-		main.piCooldownText:Show()
-		main.piCooldownText:SetText(string.format("%.1f", cd_remaining))
+	if (on_cooldown and not PI_Active) then
+		if (opt.env.ShowCooldownTimers) then
+			main.piCooldownText:Show()
+			main.piCooldownText:SetText(string.format("%.1f", cd_remaining))
+		end
 		main.piCooldown:SetCooldown(remote_startTime, remote_duration)
 	else
 		main.piCooldown:SetCooldown(0, 0)

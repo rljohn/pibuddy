@@ -81,7 +81,7 @@ function opt:CreateMainFrame()
 		TimeSinceLastUpdate = TimeSinceLastUpdate + elapsed
 		if TimeSinceLastUpdate >= ONUPDATE_INTERVAL then
 			TimeSinceLastUpdate = 0
-			opt:OnUpdate()
+			opt:OnUpdate(elapsed)
 		end
 	end)
 
@@ -222,6 +222,9 @@ function opt:SetMainFrameNoBuddyWarningVisible(visible)
 			if (opt.DpsInfo.spec_id == 0 or opt.DpsInfo.spell_id == 0) then
 				main.noBuddyWarning:SetText(string.format(opt.titles.WarningTextNoBuddySync, opt.DpsInfo.name))
 				main.noBuddyWarning:Show()
+			elseif (opt.DpsInfo.is_dead) then
+				main.noBuddyWarning:SetText(string.format(opt.titles.WarningTextBuddyDead, opt.DpsInfo.name))
+				main.noBuddyWarning:Show()
 			else
 				main.noBuddyWarning:Hide()
 			end
@@ -232,7 +235,7 @@ function opt:SetMainFrameNoBuddyWarningVisible(visible)
 		-- check if we configured a raid buddy
 		if (opt.InRaid) then
 			if (opt.env.RaidDpsBuddy == nil or opt.env.RaidDpsBuddy == "") then
-				main.noBuddyWarning:SetText(opt.titles.WarningTextNoBuddy)
+				main.noBuddyWarning:SetText(opt.titles.WarningTextNoBuddyRaid)
 				main.noBuddyWarning:Show()
 			else
 				main.noBuddyWarning:SetText(string.format(opt.titles.WarningTextNoBuddyAtTheMomentRaid, opt.env.RaidDpsBuddy))
@@ -262,6 +265,9 @@ function opt:SetMainFrameNoBuddyWarningVisible(visible)
 			if (opt.PriestInfo.spec_id == 0 or opt.PriestInfo.spell_id == 0) then
 				main.noBuddyWarning:SetText(string.format(opt.titles.WarningTextNoBuddySync, opt.PriestInfo.name))
 				main.noBuddyWarning:Show()
+			elseif (opt.PriestInfo.is_dead) then
+				main.noBuddyWarning:SetText(string.format(opt.titles.WarningTextBuddyDead, opt.PriestInfo.name))
+				main.noBuddyWarning:Show()
 			else
 				main.noBuddyWarning:Hide()
 			end
@@ -272,7 +278,7 @@ function opt:SetMainFrameNoBuddyWarningVisible(visible)
 		-- check if we configured a raid buddy
 		if (opt.InRaid) then
 			if (opt.env.RaidPriestBuddy == nil or opt.env.RaidPriestBuddy == "") then
-				main.noBuddyWarning:SetText(opt.titles.WarningTextNoBuddy)
+				main.noBuddyWarning:SetText(opt.titles.WarningTextNoBuddyRaid)
 				main.noBuddyWarning:Show()
 			else
 				main.noBuddyWarning:SetText(string.format(opt.titles.WarningTextNoBuddyAtTheMomentRaid, opt.env.RaidPriestBuddy))

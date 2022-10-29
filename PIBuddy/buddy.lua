@@ -23,6 +23,11 @@ function opt:ResetInfo(buddy)
 	buddy.failed_sync = false
 	buddy.is_synced = false
 	buddy.player_declined = false
+
+	if (buddy.is_dead) then
+		opt.IsBuddyDead = false
+	end
+	buddy.is_dead = false
 end
 
 function opt:ResetPriestInfo()
@@ -113,6 +118,7 @@ end
 
 function opt:UpdatePriestBuddyUi()
 	opt:SetPriestName(opt.PriestInfo.name)
+	opt:UpdatePIAlpha()
 end
 
 function opt:SetPriestSpec(spec_id)
@@ -187,6 +193,7 @@ end
 
 function opt:UpdateDpsBuddyUi()
 	opt:SetDpsName(opt.DpsInfo.name)
+	opt:UpdateDpsAlpha()
 end
 
 function opt:OnDpsBuddyLost(name, mode)
@@ -258,6 +265,10 @@ function opt:CheckPriestBuddy()
 		opt.PriestInfo.class_id = classId
 		opt.PriestInfo.class_name = className
 		opt.PriestInfo.connected = UnitIsConnected(player)
+		if (UnitIsDeadOrGhost(player)) then
+			opt.PriestInfo.is_dead = true
+			opt.IsBuddyDead = true
+		end
 	else
 		opt:ResetPriestInfo()
 		opt:ResetPriestUi()
@@ -292,6 +303,10 @@ function opt:CheckDpsBuddy()
 		opt.DpsInfo.class_id = classId
 		opt.DpsInfo.class_name = className
 		opt.DpsInfo.connected = UnitIsConnected(player)
+		if (UnitIsDeadOrGhost(player)) then
+			opt.DpsInfo.is_dead = true
+			opt.IsBuddyDead = true
+		end
 	else
 		opt:ResetDpsInfo()
 		opt:SetDpsSpellId(0)
@@ -448,4 +463,53 @@ function opt:SetBuddyTarget()
 
 	opt:SyncInfo()
 	opt:ForceUiUpdate()
+end
+
+
+-- we update every 0.1s, so check every 5 updates (0.5s)
+local FRAME_INTERVAL = 5
+local FRAME_SINCE_LAST_UPDATE = 0
+function opt:UpdateDeadBuddy(elapsed)
+	
+	FRAME_SINCE_LAST_UPDATE = FRAME_SINCE_LAST_UPDATE + 1
+	if FRAME_SINCE_LAST_UPDATE < FRAME_INTERVAL then return end
+	FRAME_SINCE_LAST_UPDATE = 0
+
+	local BuddyInfo = nil
+	if (opt.IsPriest) then
+		BuddyInfo = opt.DpsInfo
+	else
+		BuddyInfo = opt.PriestInfo
+	end
+
+	if (not BuddyInfo) then return end
+
+	local player = opt:FindPlayer(BuddyInfo.name)
+	if (player) then
+		if (not UnitIsDeadOrGhost(player)) then
+			BuddyInfo.is_dead = false
+			opt.IsBuddyDead = false
+			opt:ForceUiUpdate()
+		end
+	end
+end
+
+function opt:CheckBuddyDead(sourceGUID)
+
+	if (opt.IsPriest) then
+		BuddyInfo = opt.DpsInfo
+	else
+		BuddyInfo = opt.PriestInfo
+	end
+	
+	if (not BuddyInfo.guid) then return end
+
+	local player = opt:FindPlayer(BuddyInfo.name)
+	if (player) then
+		if (UnitIsDeadOrGhost(player)) then
+			BuddyInfo.is_dead = true
+			opt.IsBuddyDead = true
+			opt:ForceUiUpdate()
+		end
+	end
 end

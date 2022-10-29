@@ -42,15 +42,18 @@ PIBuddyClassList = {
 			[3] = { 193530 }, -- Aspect of the Wild
 			[4] = { 201430 }, -- Stampede
 			[5] = { 321530 }, -- Bloodshed
+			[6] = { 328231 }, -- Wild Spirits
 		},
 		[254] = { -- Marksmanship
 			[1] = { 288613 }, -- Trueshot
 			[2] = { 201430 }, -- Stampede
+			[3] = { 328231 }, -- Wild Spirits
 		},
 		[255] = { -- Survival
 			[1] = { 360966 }, -- Spearhead
 			[2] = { 203415 }, -- Fury of the Eagle (debuff)
 			[3] = { 201430 }, -- Stampede
+			[4] = { 328231 }, -- Wild Spirits
 		},
 	},
 	
@@ -75,13 +78,14 @@ PIBuddyClassList = {
 	-- Priest
 	[5] = {
 		[256] = { -- Discipline
+			[1] = { 10060 }, -- Power Infusion		
 		},
 		[257] = { -- Holy
+			[1] = { 10060 }, -- Power Infusion
 		},
 		-- Shadow
 		[258] =  { 
-			[1] = { 228260, 391109 }, -- Void Eruption / Dark Ascension
-			[2] = { 200174 }, -- Mind Bender
+			[1] = { 10060 }, -- Power Infusion
 		},
 	},
 	
@@ -104,6 +108,7 @@ PIBuddyClassList = {
 			[2] = { 42650 }, -- Army of the Dead
 			[3] = { 315443 }, -- Abomination Limb
 			[4] = { 47568 },  -- Empower Rune Weapon
+			[5] = { 207289 }, -- Unholy Assault
 		},
 	},
 	
@@ -164,6 +169,7 @@ PIBuddyClassList = {
 		[102] = { -- Balance
 			[1] = { 102560, 391528 }, -- Incarnation: Chosen of Elune, Convoke the Spirits 
 			[2] = { 194223 }, -- Celestial Alignment
+			[3] = { 323546 }, -- Ravenous Frenzy
 		},
 		[103] = { -- Feral
 			[1] = { 102543, 391528 }, -- Incarnation: Avatar of Ashamane, Convoke the Spirits
@@ -247,6 +253,7 @@ DPSBuddyEstimates = {
 	[288613] 	= { 120, 15 }, -- Trueshot
 	[360966] 	= { 90, 12 }, -- Spearhead
 	[203415] 	= { 45, 4 }, -- Fury of the Eagle
+	[328231]	= { 120, 18 }, -- Wild Spirits
 
 	-- Rogue
 	[360194] 	= { 120, 20 }, -- Deathmark
@@ -271,6 +278,7 @@ DPSBuddyEstimates = {
 	[279302] 	= { 90, 3 }, -- Frostyrm's Fury (base CD 3m, but likely to take the half-CD talent - not a real aura, so just display it for 3s to match stun duration)
 	[49206] 	= { 180, 25 }, -- Summon Gargoyle
 	[42650] 	= { 300, 30 }, -- Army of the Dead (death coils reduce cooldown. assume the DK will reduce the CD down from 8m to 5m?? innaccurate)
+	[207289]	= { 90, 20 }, -- Unholy Assault
 
 	-- Shaman
 	[198067] 	= { 150, 30 }, -- Fire Elemental
@@ -297,6 +305,7 @@ DPSBuddyEstimates = {
 	[102560] 	= { 180, 30 }, -- Incarnation: Chosen of Elune
 	[391528] 	= { 120, 4 }, -- Convoke the Spirits
 	[194223] 	= { 180, 20 }, -- Celestial Alignment
+	[323546]	= { 180, 20 }, -- Ravenous Frenzy
 	[102543] 	= { 180, 30 }, -- Incarnation: Avatar of Ashamane
 	[106951] 	= { 180, 20 }, -- Berserk (Feral)
 	[102558] 	= { 180, 30 }, -- Incarnation: Guardian of Ursoc

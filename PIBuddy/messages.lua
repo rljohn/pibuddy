@@ -511,7 +511,7 @@ function opt:HandleMessage(message)
 
 		-- if we've already filtered messages from this person
 		if (ignore_list[strlower(message.name)]) then
-			pbPrintf("Ignoring message from: %s", strlower(message.name))
+			pbDiagf("Ignoring message from: %s", strlower(message.name))
 			return 
 		end
 
