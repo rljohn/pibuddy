@@ -1,5 +1,5 @@
 local opt = PIBuddyConfig
-local ADDON_VERSION = "1.08"
+local ADDON_VERSION = "1.09"
 
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
@@ -46,6 +46,10 @@ function opt:CreateWidgets()
 		LibDD:UIDropDownMenu_AddButton(info)
 		
 		info.text, info.value, info.arg1, info.arg2 = "Group Only", 3, 3, "Group Only"
+		LibDD:UIDropDownMenu_AddButton(info)
+
+		-- value is 5 here because we added it after builds containing '4'
+		info.text, info.value, info.arg1, info.arg2 = "With Buddy Only", 5, 5, "With Buddy Only"
 		LibDD:UIDropDownMenu_AddButton(info)
 		
 		info.text, info.value, info.arg1, info.arg2 = "Never", 4, 4, "Never"
@@ -1030,13 +1034,21 @@ function opt:ForceUiUpdate()
 
 	if (opt.main == nil) then return end
 
-	if (opt.env.ShowButton == 4) then
+	if (opt.IsPriest) then
+		BuddyInfo = opt.DpsInfo
+	else
+		BuddyInfo = opt.PriestInfo
+	end
+
+	if (opt.env.ShowButton == 4) then -- show never
 		opt:HideMainFrame()
-	elseif (not opt.env.ShowPriest and not opt.env.ShowDps) then
+	elseif (not opt.env.ShowPriest and not opt.env.ShowDps) then -- both 'show' buttons hidden
 		opt:HideMainFrame()
-	elseif (not opt.InCombat and opt.env.ShowButton == 2) then
+	elseif (not opt.InCombat and opt.env.ShowButton == 2) then -- in combat only
 		opt:HideMainFrame()
-	elseif (not opt.InGroup and opt.env.ShowButton == 3) then
+	elseif (not opt.InGroup and opt.env.ShowButton == 3) then -- in group only
+		opt:HideMainFrame()
+	elseif ((not BuddyInfo.name or BuddyInfo.name == "") and opt.env.ShowButton == 5) then
 		opt:HideMainFrame()
 	else
 		opt:ShowMainFrame()
