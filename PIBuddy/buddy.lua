@@ -9,7 +9,10 @@ opt.DpsInfo = {}
 function opt:ResetInfo(buddy)
 	buddy.guid = nil
 	buddy.name = nil
+	buddy.name_short = nil
+	buddy.realm = nil
 	buddy.connected = false
+	buddy.unit_id = nil
 	buddy.class_id = 0
 	buddy.class_name = ""
 	buddy.spec_id = 0
@@ -65,6 +68,7 @@ function opt:OnGroupChanged()
 	end
 
 	opt.InRaid = IsInRaid()
+	opt:CheckMacros()
 	opt:CheckPriestBuddy()
 	opt:CheckDpsBuddy()
 	opt:SyncInfo()
@@ -89,8 +93,8 @@ end
 
 function opt:SetPriestBuddy(name)
 	if (opt.PriestInfo.is_synced or opt.PriestInfo.is_syncing) then
-		if (name ~= opt.env.PriestBuddy) then
-			opt:NotifyFriendshipTerminated(opt.env.PriestBuddy, "party")
+		if (name ~= opt.env.PriestBuddy and opt.PriestInfo.connected) then
+			opt:NotifyFriendshipTerminated(opt.env.PriestBuddy, "party", opt.PriestInfo.realm)
 		end
 	end
 	opt.env.PriestBuddy = name
@@ -104,8 +108,8 @@ end
 function opt:SetRaidPriestBuddy(name)
 	-- If synced or syncing and our value changed
 	if (opt.PriestInfo.is_synced or opt.PriestInfo.is_syncing) then
-		if (name ~= opt.env.RaidPriestBuddy) then
-			opt:NotifyFriendshipTerminated(opt.env.RaidPriestBuddy, "raid")
+		if (name ~= opt.env.RaidPriestBuddy and opt.PriestInfo.connected) then
+			opt:NotifyFriendshipTerminated(opt.env.RaidPriestBuddy, "raid", opt.PriestInfo.realm)
 		end
 	end
 	opt.env.RaidPriestBuddy = name
@@ -117,7 +121,7 @@ function opt:SetRaidPriestBuddy(name)
 end
 
 function opt:UpdatePriestBuddyUi()
-	opt:SetPriestName(opt.PriestInfo.name)
+	opt:SetPriestName(opt.PriestInfo.name_short)
 	opt:UpdatePIAlpha()
 end
 
@@ -161,30 +165,51 @@ end
 
 function opt:SetDpsBuddy(name)
 	if (opt.DpsInfo.is_synced or opt.DpsInfo.is_syncing) then
-		if (name ~= opt.env.DpsBuddy) then
-			opt:NotifyFriendshipTerminated(opt.env.DpsBuddy, "party")
+		if (name ~= opt.env.DpsBuddy and opt.DpsInfo.connected) then
+			opt:NotifyFriendshipTerminated(opt.env.DpsBuddy, "party", opt.DpsInfo.realm)
 		end
 	end
+	
+	local update_macro = false
+	if (opt.IsPriest and opt.env.DpsBuddy ~= name) then
+		update_macro = true
+	end
+
 	opt.env.DpsBuddy = name
 	if (not opt.InRaid) then
 		opt:ResetAndResyncDps()
 	end
 	opt:UpdateDpsBuddyUi()
 	opt:UpdateBuddyStatusUi()
+
+	if (update_macro) then
+		opt:RefreshPIMacros(true)
+	end
 end
 
 function opt:SetRaidDpsBuddy(name)
 	if (opt.DpsInfo.is_synced or opt.DpsInfo.is_syncing) then
-		if (name ~= opt.env.RaidDpsBuddy) then
-			opt:NotifyFriendshipTerminated(opt.env.RaidDpsBuddy, "raid")
+		if (name ~= opt.env.RaidDpsBuddy and opt.DpsInfo.connected) then
+			opt:NotifyFriendshipTerminated(opt.env.RaidDpsBuddy, "raid", opt.DpsInfo.realm)
 		end
 	end
+
+	local update_macro = false
+	if (opt.IsPriest and opt.env.RaidDpsBuddy ~= name) then
+		update_macro = true
+	end
+
 	opt.env.RaidDpsBuddy = name
+
 	if (opt.InRaid) then
 		opt:ResetAndResyncDps()
 	end
 	opt:UpdateDpsBuddyUi()
 	opt:UpdateBuddyStatusUi()
+
+	if (update_macro) then
+		opt:RefreshPIMacros(false)
+	end
 end
 
 function opt:UpdateBuddyDpsSpellId(spell_id)
@@ -192,7 +217,7 @@ function opt:UpdateBuddyDpsSpellId(spell_id)
 end
 
 function opt:UpdateDpsBuddyUi()
-	opt:SetDpsName(opt.DpsInfo.name)
+	opt:SetDpsName(opt.DpsInfo.name_short)
 	opt:UpdateDpsAlpha()
 end
 
@@ -242,7 +267,7 @@ function opt:CheckPriestBuddy()
 	local player
 
 	if (opt.IsPriest) then
-		player = opt:FindPlayer(UnitName("player"))
+		player = opt:FindPlayer(opt.PlayerName)
 	else
 		if (opt.InRaid) then
 			player = opt:FindPlayer(opt.env.RaidPriestBuddy)
@@ -252,8 +277,11 @@ function opt:CheckPriestBuddy()
 	end
 	
 	if (player) then
+		opt.PriestInfo.unit_id = player
 		opt.PriestInfo.guid = UnitGUID(player)
-		opt.PriestInfo.name = UnitName(player)
+		opt.PriestInfo.name = opt:SpaceStripper(GetUnitName(player, true))
+		opt.PriestInfo.name_short, opt.PriestInfo.realm = UnitName(player)
+		opt.PriestInfo.realm = opt:SpaceStripper(opt.PriestInfo.realm)
 		className, classFilename, classId = UnitClass(player)
 		if (classId ~= 5) then
 			-- nice try, but you need to link with a priest!
@@ -279,7 +307,7 @@ function opt:CheckDpsBuddy()
 
 	local player
 	if (not opt.IsPriest) then
-		player = opt:FindPlayer(UnitName("player"))
+		player = opt:FindPlayer(opt.PlayerName)
 	else
 		if (opt.InRaid) then
 			player = opt:FindPlayer(opt.env.RaidDpsBuddy)
@@ -288,9 +316,15 @@ function opt:CheckDpsBuddy()
 		end
 	end
 	
+	-- reset the focus attriute to 'target'
+	--opt:ChangeFocusTargetUnitId(nil)
+
 	if (player) then
+		opt.DpsInfo.unit_id = player
 		opt.DpsInfo.guid = UnitGUID(player)
-		opt.DpsInfo.name = UnitName(player)
+		opt.DpsInfo.name = opt:SpaceStripper(GetUnitName(player, true))
+		opt.DpsInfo.name_short, opt.DpsInfo.realm = UnitName(player)
+		opt.DpsInfo.realm = opt:SpaceStripper(opt.DpsInfo.realm)
 		className, classFilename, classId = UnitClass(player)
 		if (classId == 5) then
 			-- nice try, but you can't link with another priest
@@ -300,6 +334,10 @@ function opt:CheckDpsBuddy()
 			opt.DpsInfo.class_name = className
 			return
 		end
+
+		-- set the focus attribute
+		--opt:ChangeFocusTargetUnitId(player)
+
 		opt.DpsInfo.class_id = classId
 		opt.DpsInfo.class_name = className
 		opt.DpsInfo.connected = UnitIsConnected(player)
@@ -323,7 +361,7 @@ function opt:FindPlayer(n)
 	
 	-- is it a local player
 	
-	local localPlayer = strlower(UnitName("player"))
+	local localPlayer = strlower(opt.PlayerName)
 	if (localPlayer == n) then
 		return "player"
 	end
@@ -344,7 +382,7 @@ function opt:FindPlayer(n)
 	elseif (IsInGroup()) then
 		for i = 1, 4 do
 			local unitId = "party" .. i
-			local name = UnitName(unitId)
+			local name = GetUnitName(unitId, true)
 			if (name) then
 				if (strlower(name) == n) then
 					return unitId
@@ -424,12 +462,12 @@ end
 
 function opt:SetBuddyTarget()
 
-	local target = UnitName("target")
+	local target = GetUnitName("target", true)
 
 	-- must have a valid player target (who isn't us!)
 	if (not target) then return end
 	if (not UnitIsPlayer("target")) then return end
-	if (target == UnitName("player")) then return end
+	if (target == opt.PlayerName) then return end
 
 	className, classFilename, classId = UnitClass("target")
 

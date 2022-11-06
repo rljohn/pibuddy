@@ -12,7 +12,7 @@ local main
 function opt:CreateDpsWidgets(m)
 
 	main = m
-	
+
 	-- other player
 	
 	main.coolDownSpellTexture = CreateFrame('FRAME', nil, main, "BackdropTemplate")
@@ -54,7 +54,7 @@ function opt:CreateDpsWidgets(m)
 	main.dpsName = main.coolDownSpellTexture:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
 	main.dpsName:SetPoint('BOTTOM', main.coolDownSpellTexture, 'TOP', 0, 2)
 	main.dpsName:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
-	opt:SetDpsName(opt.DpsInfo.name)
+	opt:SetDpsName(opt.DpsInfo.name_short)
 
 	-- DPS timer
 
@@ -124,6 +124,7 @@ function opt:ResetDpsUi()
 end
 
 function opt:ClearDpsCooldown()
+
 	opt:OnLoseDpsCooldown()
 
 	local aura = C_UnitAuras.GetPlayerAuraBySpellID(opt.DpsInfo.aura_id)
@@ -154,6 +155,9 @@ function opt:SetDpsSpellId(spell_id)
 end
 
 function opt:UpdateDpsAlpha()
+
+	if (not main.coolDownSpellTexture) then return end
+	
 	if (opt.DpsInfo.is_dead) then
 		main.coolDownSpellTexture.texture:SetAlpha(0.25)
 	elseif (opt.DpsInfo.spell_id > 0) then
@@ -199,7 +203,9 @@ function opt:OnGainDpsCooldown()
 			opt.DpsInfo.timer_remaining = -1
 		end
 
-		opt:NotifyDpsActiveChanged()
+		if (not opt.IsPriest) then
+			opt:NotifyDpsActiveChanged()
+		end
 	end
 
 	-- reset our timer text
@@ -227,11 +233,15 @@ function opt:OnLoseDpsCooldown()
 
 	DPS_CD_Active = false
 
-	main.dpsTimer:Hide()
+	if (opt.main) then
+		opt.main.dpsTimer:Hide()
+	end
+
 	opt:UpdateDpsAlpha()
 	aura_override_time = 0
 	opt.DpsInfo.timer_remaining = -1
-	if (not opt.IsPriest) then
+
+	if (not opt.IsPriest and opt.PriestInfo.is_synced) then
 		opt:NotifyDpsActiveChanged()
 	end
 end
@@ -420,15 +430,21 @@ function opt:OnReceivedDpsActivity(active_time)
 		remote_active_end = remote_active_start + remote_active_duration
 		opt:OnGainDpsCooldown()
 
-		if (opt.env.DpsCooldownAudio and opt.env.DpsCooldownAudio ~= "None") then
-			if (opt.env.DpsCooldownAudio == "Power Infusion") then
-				PlaySound(170678)
-			else
-				local soundFile = media:Fetch("sound", opt.env.DpsCooldownAudio)
-				if (soundFile) then
-					PlaySoundFile(soundFile)
+		-- don't play a sound if we're well on cooldown
+		local playSound = (opt.PriestInfo.cooldown_remaining <= 5)
+		if (playSound) then
+			if (opt.env.DpsCooldownAudio and opt.env.DpsCooldownAudio ~= "None") then
+				if (opt.env.DpsCooldownAudio == "Power Infusion") then
+					PlaySound(170678)
+				else
+					local soundFile = media:Fetch("sound", opt.env.DpsCooldownAudio)
+					if (soundFile) then
+						PlaySoundFile(soundFile)
+					end
 				end
 			end
+
+			opt:BeginPiMeGlow(false)
 		end
 
 	else

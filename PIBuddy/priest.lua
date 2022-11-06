@@ -10,9 +10,9 @@ local ICON_ZOOM = 0.08
 -- pi me
 local PiMeGlowTime = 0
 
--- WIDGETS
-
 local LGF = LibStub("LibGetFrame-1.0")
+
+-- WIDGETS
 
 function opt:CreatePriestWidgets(m)
 
@@ -23,7 +23,7 @@ function opt:CreatePriestWidgets(m)
 	if (LGF) then
 		LGF.GetUnitFrame("player")
 	end
-	
+		
 	main.piSpellTexture = CreateFrame('FRAME', nil, main, "BackdropTemplate")
 	main.piSpellTexture:SetPoint('LEFT', main, 'LEFT', 16, 0)
 	main.piSpellTexture:SetWidth(opt.env.IconSize)
@@ -63,7 +63,7 @@ function opt:CreatePriestWidgets(m)
 	main.piPriestName = main.piSpellTexture:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
 	main.piPriestName:SetPoint('BOTTOM', main.piSpellTexture, 'TOP', 0, 2)
 	main.piPriestName:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
-	opt:SetPriestName(opt.PriestInfo.name)
+	opt:SetPriestName(opt.PriestInfo.name_short)
 	
 	-- PI timer
 	
@@ -129,6 +129,7 @@ end
 
 function opt:ResetPriestUi()
 	if (not main) then return end
+	opt:EndPiMeGlow()
 	opt:OnReceivedPICooldown(0)
 end
 
@@ -210,9 +211,13 @@ end
 ---------------------------------
 
 local media = LibStub("LibSharedMedia-3.0")
-local buddyFrame = nil
+local buddyFrames = nil
 
 function opt:OnReceivedPIRequest()
+	opt:BeginPiMeGlow(true)
+end
+
+function opt:BeginPiMeGlow(include_main_frame)
 
 	if (PiMeGlowTime == 0) then
 
@@ -231,31 +236,37 @@ function opt:OnReceivedPIRequest()
 		-- glow the raid frame
 		if (opt.env.ShowPiMeGlow) then
 
-			if (opt.env.ShowBackground) then
+			if (opt.env.ShowBackground and include_main_frame) then
 				Glower.PixelGlow_Start (main)
 			end
 
-			local player = opt:FindPlayer(opt.DpsInfo.name)
-			if (player) then
-				if (LGF) then
-					buddyFrame = LGF.GetUnitFrame(player, {
-						ignorePlayerFrame = false,
-						ignoreTargetFrame = false,
-						ignoreTargettargetFrame = false,
-						returnAll = true,
-					  })
-					
-					-- find all frames for that player
-					if (buddyFrame) then
-						for _, frame in pairs(buddyFrame) do
-							Glower.PixelGlow_Start(frame)
-						end
+			opt:ShowPIMeFrameGlow()
+		end
+		
+		PiMeGlowTime = GetTime()
+	end
+end
+
+function opt:ShowPIMeFrameGlow()
+	local player = opt:FindPlayer(opt.DpsInfo.name)
+	if (player) then
+		if (LGF) then
+			buddyFrames = LGF.GetUnitFrame(player, {
+				ignorePlayerFrame = false,
+				ignoreTargetFrame = false,
+				ignoreTargettargetFrame = false,
+				returnAll = true,
+			  })
+			
+			-- find all frames for that player
+			if (buddyFrames) then
+				for _, frame in pairs(buddyFrames) do
+					if (not frame.no_glow) then
+						Glower.PixelGlow_Start(frame)
 					end
 				end
 			end
 		end
-		
-		PiMeGlowTime = GetTime()
 	end
 end
 
@@ -263,19 +274,25 @@ function opt:UpdatePiMeRequest()
 	-- timeout the PIME pixel glow
 	if (PiMeGlowTime > 0) then
 		if (GetTime() - 5 > PiMeGlowTime) then
-			Glower.PixelGlow_Stop(main)
-			
-			if (buddyFrame) then
-				for _, frame in pairs(buddyFrame) do
-					if (frame) then
-						Glower.PixelGlow_Stop(frame)
-					end
-				end
-			end
-
-			PiMeGlowTime = 0
+			opt:EndPiMeGlow()
 		end
 	end
+end
+
+function opt:EndPiMeGlow()
+	if (main) then
+		Glower.PixelGlow_Stop(main)
+	end
+	
+	if (buddyFrames) then
+		for _, frame in pairs(buddyFrames) do
+			if (frame) then
+				Glower.PixelGlow_Stop(frame)
+			end
+		end
+	end
+
+	PiMeGlowTime = 0
 end
 
 function opt:OnCastPowerInfusion()

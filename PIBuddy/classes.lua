@@ -287,7 +287,7 @@ DPSBuddyEstimates = {
 
 	-- Mage
 	[365350] 	= { 90, 12 }, -- Arcane Surge
-	[190319] 	= { 120, 10 }, -- Combustion
+	[190319] 	= { 120, 12 }, -- Combustion
 	[12472] 	= { 180, 25 }, -- Icy Veins
 
 	-- Warlock

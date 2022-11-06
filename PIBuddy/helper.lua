@@ -10,11 +10,7 @@ function pbPrintf(...)
  if (not ENABLE_OUTPUT) then return end
  local status, res = pcall(format, ...)
  if status then
-    if DLAPI then 
-		DLAPI.DebugLog("KUI TargetHelper", res) 
-	else
-		print(res)
-	end
+    print('|cffFFF569PI Buddy:|r', res)
   end
 end
 
@@ -23,11 +19,7 @@ function pbDiagf(...)
 	if (not ENABLE_DIAG) then return end
 	local status, res = pcall(format, ...)
 	if status then
-	   if DLAPI then 
-		   DLAPI.DebugLog("KUI TargetHelper", res) 
-	   else
-		   print(res)
-	   end
+		print('|cffFFF569PI Buddy:|r', res)
 	 end
    end
 
@@ -229,7 +221,7 @@ function opt:IsPartyMember(n)
 	elseif (IsInGroup()) then
 		for i = 1, 4 do
 			local unitId = "party" .. i
-			local name = UnitName(unitId)
+			local name = GetUnitName(unitId, true)
 			if (name) then
 				if (strlower(name) == n) then
 					return true
@@ -278,4 +270,29 @@ function opt:HasTalentNode(nodeId)
 	end
 
 	return false
+end
+
+-- strings
+
+function opt:SpaceStripper(str)
+	if (not str) then return str end
+	return string.gsub(str, "[^%S\n]+", "")
+end
+
+-- auras
+
+function opt:GetAuraDuration(spell_id, unit_id)
+
+	local result = -1
+	AuraUtil.ForEachAura(unit_id, "HELPFUL", nil, function(name, icon, _, _, duration, expirationTime, _, _, _, spellId, ...)
+		if (spellId == spell_id) then
+			if (expirationTime and expirationTime > 0) then
+				result = expirationTime - GetTime()
+			end
+
+			return true
+		end
+	end)
+	
+	return result
 end

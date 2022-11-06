@@ -17,6 +17,7 @@ opt.InCombat = false
 -- class info
 opt.PlayerGUID = 0
 opt.PlayerName = ""
+opt.PlayerRealm = ""
 opt.ClassName = "Priest"
 opt.PlayerClass = 0
 opt.PlayerSpec = 0
@@ -26,6 +27,8 @@ opt.HasPI = false
 opt.HasTwins = false
 opt.HasCooldown = false
 opt.IsBuddyDead = false
+opt.ExportMacros = false
+opt.ExportMacrosRaid = false
 
 -- cooldowns
 opt.POWER_INFUSION = 10060 -- pi
@@ -67,8 +70,9 @@ function opt:LoadMissingValues()
 	SetDefaultValue('ShowPriest', true)
 	SetDefaultValue('ShowDps', true)
 	SetDefaultValue('ShowPiMe', true)
+	SetDefaultValue('ShowFocusMe', true)
 	SetDefaultValue('ShowPiMeGlow', true)
-	SetDefaultValue('ShowCooldownTimers', true)
+	SetDefaultValue('ShowCooldownTimers', false)
 	SetDefaultValue('ShowSpellTimers', true)
 	SetDefaultValue('ShowSpellGlow', true)
 	SetDefaultValue('WarnNoBuddy', true)
@@ -79,10 +83,23 @@ function opt:LoadMissingValues()
 	SetDefaultValue('IconSize', 64)
 	SetDefaultValue('FrameX', -1)
 	SetDefaultValue('FrameY', -1)
-	SetDefaultValue('ShowPIMe', false)
 	SetDefaultValue('AllowOneWay', true)
 	SetDefaultValue('DpsCooldownAudio', "None")
 	SetDefaultValue('PiMeAudio', "None")
+
+	-- macros
+	SetDefaultValue('Trinket1Party', true)
+	SetDefaultValue('Trinket1Raid', true)
+	SetDefaultValue('Trinket2Party', true)
+	SetDefaultValue('Trinket2Raid', true)
+	SetDefaultValue('GenerateMacroParty', false)
+	SetDefaultValue('GenerateMacroRaid', false)
+	SetDefaultValue('PIFocusParty', false)
+	SetDefaultValue('PIFocusRaid', false)
+	SetDefaultValue('PIFriendlyParty', true)
+	SetDefaultValue('PIFriendlyRaid', true)
+	SetDefaultValue('PITargetLastTargetParty', true)
+	SetDefaultValue('PITargetLastTargetRaid', true)
 	
 	-- buddies
 	SetDefaultValue('PriestBuddy', "")
@@ -94,16 +111,18 @@ function opt:LoadMissingValues()
 	SetDefaultValue('Cooldowns', {})
 
 	-- do not allow buddy to self
-	if (strlower(opt.env.PriestBuddy) == strlower(opt.PlayerName)) then
+	local lower_name = strlower(opt.PlayerName)
+
+	if (strlower(opt.env.PriestBuddy) == lower_name) then
 		SetValue('PriestBuddy', "")
 	end
-	if (strlower(opt.env.RaidPriestBuddy) == strlower(opt.PlayerName)) then
+	if (strlower(opt.env.RaidPriestBuddy) == lower_name) then
 		SetValue('RaidPriestBuddy', "")
 	end
-	if (strlower(opt.env.DpsBuddy) == strlower(opt.PlayerName)) then
+	if (strlower(opt.env.DpsBuddy) == lower_name) then
 		SetValue('DpsBuddy', "")
 	end
-	if (strlower(opt.env.RaidDpsBuddy) == strlower(opt.PlayerName)) then
+	if (strlower(opt.env.RaidDpsBuddy) == lower_name) then
 		SetValue('RaidDpsBuddy', "")
 	end
 end
@@ -115,19 +134,26 @@ function opt:OnLogin()
 	-- init
 	opt:ResetBuddyInfo()
 
-	-- check class
+	-- check name, realm
 	opt.PlayerName = UnitName("player")
+	opt.PlayerRealm = opt:SpaceStripper(GetNormalizedRealmName())
+	opt.PlayerGUID = UnitGUID("player")
+	opt.PlayerNameRealm = string.format("%s-%s", opt.PlayerName, opt.PlayerRealm)
+	opt.PlayerLevel = UnitLevel("player")
+
+	-- check class info
 	local localizedClass, englishClass, classIndex = UnitClass("player");
 	opt.ClassName = localizedClass
 	opt.PlayerClass = classIndex
+	opt.PriestInfo.spell_id = opt.POWER_INFUSION
+	opt.PriestInfo.aura_id = opt.POWER_INFUSION
 	if (classIndex == 5) then
 		opt.IsPriest = true
 	end
-	opt.PlayerGUID = UnitGUID("player")
+	
+	-- group info
 	opt.InGroup = IsInGroup() or IsInRaid()
 	opt.InRaid = IsInRaid()
-	opt.PriestInfo.spell_id = opt.POWER_INFUSION
-	opt.PriestInfo.aura_id = opt.POWER_INFUSION
 	opt:OnPlayerFocusChanged()
 
 	-- load settings
@@ -151,7 +177,19 @@ function opt:OnLogin()
 	opt:ForceUiUpdate()
 	
 	-- request initial sync
-	opt:SyncInfo()
+	C_Timer.After(1, function() 
+
+		-- level warning
+		if (opt.PlayerLevel < 30) then
+			pbPrintf("%s", opt.titles.PIBuddyLevelWarning)
+		end
+
+		-- macros
+		opt:CheckMacros()
+
+		-- sync
+		opt:SyncInfo()
+	end)
 	
 	-- minimap
 	opt:CreateMinimapIcon()
@@ -184,6 +222,10 @@ function opt:UpdateTalentSpec()
 	if (not opt.IsPriest) then
 		opt:SetDpsSpec(opt.PlayerSpec)
 		opt:CheckDpsCooldownInfo()
+
+		if (opt.Initialized) then
+			opt:NotifyDpsInfoChanged()
+		end
 	end
 
 	-- update main frame UI
@@ -191,11 +233,13 @@ function opt:UpdateTalentSpec()
 end
 
 function opt:OnPlayerFocusChanged()
-	local focus = GetUnitName("focus")
+	local focus = GetUnitName("focus", true)
 	if (focus) then
 		opt.HasFocus = true
+		opt.FocusName = focus
 	else
 		opt.HasFocus = false
+		opt.FocusName = ""
 	end
 
 	-- update main frame UI
@@ -350,5 +394,8 @@ function opt:OnUpdate(elapsed)
 	if (opt.IsBuddyDead) then
 		opt:UpdateDeadBuddy(elapsed)
 	end
+
+	opt:UpdateMacros()
+	
 end
 

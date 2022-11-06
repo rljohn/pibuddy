@@ -65,13 +65,29 @@ function opt:CreateMainFrame()
 		end
 	end)
 
-	if (opt.IsPriest) then
-		main.pime:Hide()
-	end
-	
+	--[[
+	-- focus me
+	local ICON_ZOOM = 0.08
+	main.focusme = CreateFrame("Button", "PIFocusMeButton", main, "SecureActionButtonTemplate,UIPanelButtonTemplate");
+	main.focusme:SetPoint('TOP', main, 'BOTTOM', 0, -4)
+	main.focusme:SetWidth(72)
+	main.focusme:SetHeight(28)
+	main.focusme:SetText(opt.titles.SetFocusText)
+	main.focusme:RegisterForClicks("AnyDown", "AnyUp")
+	main.focusme:SetAttribute("type", "focus")
+	main.focusme.no_glow = true
+	]]--
+
 	opt:AdjustWarningSpacing()
 	main:SetPoint("CENTER",0,0)	
 	opt.main = main
+	
+	if (opt.IsPriest) then
+		main.pime:Hide()
+		--opt:ChangeFocusTargetUnitId(opt.DpsInfo.unit_id)
+	else
+		--main.focusme:Hide()
+	end
 
 	-- Tick
 
@@ -86,6 +102,18 @@ function opt:CreateMainFrame()
 	end)
 
 end
+
+--[[
+function opt:ChangeFocusTargetUnitId(unitId)
+	if (opt.main) then
+		if (unitId) then
+			opt.main.focusme:SetAttribute("unit", unitId)
+		else
+			opt.main.focusme:SetAttribute("unit", "target")
+		end
+	end
+end
+]]--
 
 function opt:ShowMainFrame()
 	main:Show()
@@ -160,6 +188,7 @@ function opt:SetMainFrameBackgroundVisible(visible)
 end
 
 function opt:SetMainFrameTitleVisible(visible)
+
 	if (visible) then
 		main.header:Show()
 	else
@@ -168,10 +197,43 @@ function opt:SetMainFrameTitleVisible(visible)
 end
 
 function opt:SetMainFramePiMeButton(visible)
+
 	if (visible and not opt.IsPriest) then
 		main.pime:Show()
 	else
 		main.pime:Hide()
+	end
+end
+
+function opt:SetMainFrameFocusMeButton(visible)
+
+	local show = false
+
+	if (visible and opt.IsPriest) then
+
+		-- no focus
+		if (not opt.HasFocus) then
+			show = true
+		else
+
+			-- wrong focus - not synced
+			if (opt.DpsInfo.name == nil or opt.DpsInfo.name == "") then
+				if (opt.InRaid) then
+					show = (opt.env.RaidDpsBuddy ~= opt.FocusName)
+				else
+					show = (opt.env.DpsBuddy ~= opt.FocusName)
+				end
+			else
+				-- wrong focus
+				show = (opt.DpsInfo.name ~= opt.FocusName)
+			end
+		end
+	end
+
+	if (show) then
+		main.focusme:Show()
+	else
+		main.focusme:Hide()
 	end
 end
 
@@ -200,7 +262,7 @@ function opt:CreateWarningWidgets()
 end
 
 function opt:SetMainFrameNoBuddyWarningVisible(visible)
-	
+		
 	-- early out - warning was disabled
 	if (not visible) then
 		main.noBuddyWarning:Hide()
@@ -219,7 +281,7 @@ function opt:SetMainFrameNoBuddyWarningVisible(visible)
 		-- early out, we have a dps buddy
 		if (opt.DpsInfo.name) then
 					
-			if (opt.DpsInfo.spec_id == 0 or opt.DpsInfo.spell_id == 0) then
+			if (opt.DpsInfo.spec_id == 0 and opt.DpsInfo.spell_id == 0) then
 				main.noBuddyWarning:SetText(string.format(opt.titles.WarningTextNoBuddySync, opt.DpsInfo.name))
 				main.noBuddyWarning:Show()
 			elseif (opt.DpsInfo.is_dead) then
@@ -344,4 +406,5 @@ function opt:AdjustWarningSpacing()
 	main.noPIWarning:SetPoint('TOP', main, 'BOTTOM', 0, offset - noBuddyOffset - noFocusOffset)
 	main.noTwinsWarning:SetPoint('TOP', main, 'BOTTOM', 0, offset  - noBuddyOffset - noFocusOffset - piWarningOffset)
 	main.pime:SetPoint('TOP', main, 'BOTTOM', 0, offset - noBuddyOffset - noFocusOffset - piWarningOffset - twinsWarningOffset)
+	--main.focusme:SetPoint('TOP', main, 'BOTTOM', 0, offset - noBuddyOffset - noFocusOffset - piWarningOffset - twinsWarningOffset)
 end

@@ -10,6 +10,10 @@ function opt:SetupLocale()
 		PIBuddy = 'PIBuddy',
 		PIBuddyConfig = 'PIBuddy Config',
 		
+		-- min level
+
+		PIBuddyLevelWarning = "This addon is designed for high level players with access to their signature class abilities. You may wish to disable it while leveling.",
+
 		-- controls
 		
 		Controls = 'Frame Options',
@@ -25,6 +29,37 @@ function opt:SetupLocale()
 
 		-- priest-only options
 		PriestConfig = "Priest Config",
+
+		-- macros
+
+		MacroConfig = 'Power Infusion (Party) - Macro',
+		MacroConfigRaid = 'Power Infusion (Raid) - Macro',
+
+		GenerateMacroParty = 'Automatically generate macro',
+		GenerateMacroPartyTooltip = 'Automatically creates and updates a macro called "PIBUDDY" when in a group.',
+
+		GenerateMacroRaid = 'Automatically generate macro',
+		GenerateMacroRaidTooltip = 'Automatically creates and updates a macro called "PIBUDDY" when in a raid.',
+
+		Trinket1Party = 'Use Trinket (Slot 1)',
+		Trinket1Raid = 'Use Trinket (Slot 1)',
+		Trinket1Tooltip = 'Include first trinket in the macro.',
+
+		Trinket2Party = 'Use Trinket (Slot 2)',
+		Trinket2Raid = 'Use Trinket (Slot 2)',
+		Trinket2Tooltip = 'Include second trinket in the macro.',
+
+		PIFocusParty = 'Include Focus Target',
+		PIFocusRaid = 'Include Focus Target',
+		PIFocusTooltip = 'Attempt to cast on your focus target.',
+
+		PIFriendlyParty = 'Include Friendly Target',
+		PIFriendlyRaid = 'Include Friendly Target',
+		PIFriendlyTooltip = 'Attempt to target a random friendly player, in case your buddy is dead.',
+
+		PITargetLastTargetParty = 'Target Last Target',
+		PITargetLastTargetRaid  = 'Target Last Target',
+		PITargetLastTargetTooltip = 'Attempt to target your last target.',
 
 		-- sound
 
@@ -63,6 +98,10 @@ function opt:SetupLocale()
 		ShowPiMeGlow = "Show |cffFFF569PI ME|r Frame Glow",
 		ShowPiMeGlowHeader = "Show |cffFFF569PI ME|r Frame Glow",
 		ShowPiMeGlowTooltip = "Glow your buddy's unit frames after receiving a PI request",
+		
+		ShowFocusMe = "Show Focus Button",
+		ShowFocusMeHeader = "Show Focus Button",
+		ShowFocusMeTooltip = "Show a 'Set Focus' Button when your buddy is not your current focus.",
 
 		ShowCooldownTimers = "Show Cooldown Timers",
 		ShowCooldownTimersHeader = "Show Cooldown Timers",
@@ -122,6 +161,10 @@ function opt:SetupLocale()
 		TooltipUnavailable = 'Unavailable',
 		PriestOnlyTooltip = 'Only available to Priests.',
 		DpsOnlyTooltip = 'Not available to Priests.',
+
+		-- create pime macro
+
+
 		
 		-- frame size
 		
@@ -132,8 +175,13 @@ function opt:SetupLocale()
 		
 		ShowPIMeButton = 'Show "PI ME" Button',
 		RequestPI = 'PI Me!',
+
+		-- focus me
 		
-		-- 
+		ShowFocusMeButton = 'Show "Set Focus" Button',
+		SetFocusText = 'Set Focus',
+
+		-- config
 		
 		PartyConfig = 'PI Buddy (Party and Arena)',
 		RaidConfig = 'PI Buddy (Raid)',

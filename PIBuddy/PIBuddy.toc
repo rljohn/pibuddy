@@ -11,6 +11,7 @@ embeds.xml
 # Core Files
 config.lua
 config_panels.lua
+macros.lua
 classes.lua
 helper.lua
 localisation.lua

@@ -4,7 +4,8 @@ local ALLOW_TEST_FUNCTIONS=false
 
 -- API version appended to initial sync messages
 -- Usage: Identifies a user on an older client
-local CURRENT_VERSION = 1
+local CURRENT_VERSION = 2
+opt.MESSAGE_VERSION = 2
 
 -- dps info
 local DPS_INFO_REQUEST = 100
@@ -94,8 +95,7 @@ end
 function opt:SendDpsInfoRequest()
 	local message = { }
 	message.id = DPS_INFO_REQUEST
-	message.version = CURRENT_VERSION
-	opt:SendMessage(message, opt.DpsInfo.name)
+	opt:SendMessage(message, opt.DpsInfo.name, opt.DpsInfo.realm)
 end
 
 -- received dps info request from priest
@@ -110,12 +110,11 @@ end
 function opt:SendDpsInfoReply()
 	local message = { }
 	message.id = DPS_INFO_REPLY
-	message.version = CURRENT_VERSION
 	message.class_id = opt.PlayerClass
 	message.spec_id = opt.PlayerSpec
 	message.spell_id = opt.DpsInfo.spell_id
 	
-	opt:SendMessage(message, opt.PriestInfo.name)
+	opt:SendMessage(message, opt.PriestInfo.name, opt.PriestInfo.realm)
 end
 
 -- received info from the dps
@@ -129,13 +128,15 @@ end
 -- notify the priest my DPS info changed
 
 function opt:NotifyDpsInfoChanged()
+	if (not opt.PriestInfo.connected) then return end
+
 	local message = { }
 	message.id = NOTIFY_DPS_INFO_CHANGED
 	message.class_id = opt.PlayerClass
 	message.spec_id = opt.PlayerSpec
 	message.spell_id = opt.DpsInfo.spell_id
 
-	opt:SendMessage(message, opt.PriestInfo.name)
+	opt:SendMessage(message, opt.PriestInfo.name, opt.PriestInfo.realm)
 end
 
 -----------------------------------
@@ -147,8 +148,7 @@ end
 function opt:SendPriestInfoRequest()
 	local message = { }
 	message.id = PRIEST_INFO_REQUEST
-	message.version = CURRENT_VERSION
-	opt:SendMessage(message, opt.PriestInfo.name)
+	opt:SendMessage(message, opt.PriestInfo.name, opt.PriestInfo.realm)
 end
 
 -- received priest info request from dps
@@ -163,11 +163,10 @@ end
 function opt:SendPriestInfoReply()
 	local message = { }
 	message.id = PRIEST_INFO_REPLY
-	message.version = CURRENT_VERSION
 	message.class_id = opt.PlayerClass
 	message.spec_id = opt.PlayerSpec
 	message.spell_id = opt.PriestInfo.spell_id
-	opt:SendMessage(message, opt.DpsInfo.name)
+	opt:SendMessage(message, opt.DpsInfo.name, opt.DpsInfo.realm)
 end
 
 -- received info from the priest
@@ -181,12 +180,13 @@ end
 -- notify the dps that my priest info has changed
 
 function opt:NotifyPriestInfoChanged()
+	if (not opt.DpsInfo.connected) then return end
 	local message = { }
 	message.id = NOTIFY_PRIEST_INFO_CHANGED
 	message.class_id = opt.PlayerClass
 	message.spec_id = opt.PlayerSpec
 	message.spell_id = opt.PriestInfo.spell_id
-	opt:SendMessage(message, opt.DpsInfo.name)
+	opt:SendMessage(message, opt.DpsInfo.name, opt.DpsInfo.realm)
 end
 
 -----------------------------------
@@ -196,7 +196,7 @@ end
 function opt:SendPICooldownRequest()
 	local message = { }
 	message.id = PI_COOLDOWN_REQUEST
-	opt:SendMessage(message, opt.PriestInfo.name)
+	opt:SendMessage(message, opt.PriestInfo.name, opt.PriestInfo.realm)
 end
 
 function opt:OnPICooldownRequest()
@@ -206,7 +206,7 @@ function opt:OnPICooldownRequest()
 	message.id = PI_COOLDOWN_REPLY
 	message.spell_id = opt.PriestInfo.spell_id
 	message.cooldown_remaining = opt.PriestInfo.cooldown_remaining
-	opt:SendMessage(message, opt.DpsInfo.name)
+	opt:SendMessage(message, opt.DpsInfo.name, opt.DpsInfo.realm)
 end
 
 function opt:OnPICooldownReply(message)
@@ -215,11 +215,12 @@ function opt:OnPICooldownReply(message)
 end
 
 function opt:NotifyPICooldownChanged()
+	if (not opt.DpsInfo.connected) then return end
 	local message = { }
 	message.id = NOTIFY_PI_COOLDOWN_CHANGED
 	message.spell_id = opt.PriestInfo.spell_id
 	message.cooldown_remaining = opt.PriestInfo.cooldown_remaining
-	opt:SendMessage(message, opt.DpsInfo.name)
+	opt:SendMessage(message, opt.DpsInfo.name, opt.DpsInfo.realm)
 end
 
 -----------------------------------
@@ -229,7 +230,7 @@ end
 function opt:SendDpsCooldownRequest()
 	local message = { }
 	message.id = DPS_COOLDOWN_REQUEST
-	opt:SendMessage(message, opt.DpsInfo.name)
+	opt:SendMessage(message, opt.DpsInfo.name, opt.DpsInfo.realm)
 end
 
 function opt:OnDpsCooldownRequest()
@@ -241,7 +242,7 @@ function opt:OnDpsCooldownRequest()
 	message.cooldown_remaining = opt.DpsInfo.cooldown_remaining
 	message.timer_remaining = opt.DpsInfo.timer_remaining
 	
-	opt:SendMessage(message, opt.PriestInfo.name)
+	opt:SendMessage(message, opt.PriestInfo.name, opt.PriestInfo.realm)
 end
 
 function opt:OnDpsCooldownChanged(message)
@@ -260,11 +261,12 @@ function opt:OnDpsCooldownReply(message)
 end
 
 function opt:NotifyDpsCooldownChanged()
+	if (not opt.PriestInfo.connected) then return end
 	local message = { }
 	message.id = NOTIFY_DPS_COOLDOWN_CHANGED
 	message.spell_id = opt.DpsInfo.spell_id
 	message.cooldown_remaining = opt.DpsInfo.cooldown_remaining
-	opt:SendMessage(message, opt.PriestInfo.name)
+	opt:SendMessage(message, opt.PriestInfo.name, opt.PriestInfo.realm)
 end
 
 -----------------------------------
@@ -272,11 +274,12 @@ end
 -----------------------------------
 
 function opt:NotifyDpsActiveChanged()
+	if (not opt.PriestInfo.connected) then return end
 	local message = { }
 	message.id = NOTIFY_DPS_ACTIVE_CHANGED
 	message.spell_id = opt.DpsInfo.spell_id
 	message.timer_remaining = opt.DpsInfo.timer_remaining
-	opt:SendMessage(message, opt.PriestInfo.name)
+	opt:SendMessage(message, opt.PriestInfo.name, opt.PriestInfo.realm)
 end
 
 function opt:OnDpsActiveReply(message)
@@ -291,7 +294,7 @@ end
 function opt:SendPiMeRequest()
 	local message = { }
 	message.id = REQUEST_PIME
-	opt:SendMessage(message, opt.PriestInfo.name)
+	opt:SendMessage(message, opt.PriestInfo.name, opt.PriestInfo.realm)
 end
 
 function opt:OnPiMeRequest(message)
@@ -302,15 +305,15 @@ end
 -- Buddy Changed
 -----------------------------------
 
-function opt:NotifyFriendshipTerminated(name, mode)
+function opt:NotifyFriendshipTerminated(name, mode, realm)
 	local message = { }
 	message.id = BUDDY_CHANGED
 	message.mode = mode
-	opt:SendMessage(message, name)
+	opt:SendMessage(message, name, realm)
 end
 
 function opt:OnBuddyChanged(message)
-	pbPrintf("%s removed you as a PI Buddy.", message.name, message.mode)
+	pbPrintf("%s removed you as a buddy.", message.name, message.mode)
 
 	local name = strlower(message.name)
 	if (opt.IsPriest) then
@@ -335,21 +338,32 @@ function opt:SendPIBuddyRequest(name, mode)
 		opt.PriestInfo.player_declined = false
 	end
 
+	local player = opt:FindPlayer(name)
+	if (player == nil) then
+		pbPrintf("Could not send buddy request to |cffFFF569%s|r. Player must be in your party or raid.", name)
+		return
+	end
+
+	local realm
+	name, realm = UnitName(player)
+	realm = opt:SpaceStripper(realm)
+
 	-- cache our requestee
 	request_buddy = name
+	request_realm = realm
 
 	-- send the message
 	local message = { }
 	message.id = REQUEST_BUDDY
 	message.mode = mode
-	opt:SendMessage(message, name)
+	opt:SendMessage(message, name, realm)
 
 	-- update ui
 	opt:ForceUiUpdate()
 end
 
 function opt:OnPIBuddyRequest(message)
-	opt:RequestPIBuddy(message.name, message.mode)
+	opt:RequestPIBuddy(message.name, message.mode, message.realm)
 end
 
 function opt:ConfirmRequestBuddy()
@@ -389,7 +403,7 @@ function opt:DenyBuddyRequest()
 
 	local message = {}
 	message.id = REQUEST_BUDDY_DECLINE
-	opt:SendMessage(message, request_buddy)
+	opt:SendMessage(message, request_buddy, request_realm)
 
 end
 
@@ -438,7 +452,7 @@ StaticPopupDialogs["PIBuddy_RequestBuddyConfirm"] = {
 	preferredIndex = 3,
   }
 
-function opt:RequestPIBuddy(name, mode)
+function opt:RequestPIBuddy(name, mode, realm)
 
 	-- early out if already your buddy
 	local current_buddy = opt:GetCurrentBuddy()
@@ -451,6 +465,7 @@ function opt:RequestPIBuddy(name, mode)
 
 	request_buddy = name
 	request_mode = mode
+	request_realm = realm
 	request_active = true
 
 	StaticPopup_Show("PIBuddy_RequestBuddyConfirm", name, mode)
@@ -487,16 +502,16 @@ function opt:HandleMessage(message)
 			return 
 		end
 
-		pbPrintf("PIBuddy: Version out of date. Please update!")
+		pbPrintf("Your version out of date and incompatible with other players. Please update!")
 		has_shown_version_warning = true
 		return
 	end
 
 	-- handle buddy requests first
 	if (message.id == REQUEST_BUDDY) then
-		opt:RequestPIBuddy(message.name, message.mode)
+		opt:RequestPIBuddy(message.name, message.mode, message.realm)
 	elseif (message.id == REQUEST_BUDDY_ACCEPT) then
-		pbPrintf("%s accepted your PI Buddy request.", message.name)
+		pbPrintf("%s accepted your buddy request.", message.name)
 	elseif (message.id == REQUEST_BUDDY_DECLINE) then
 		opt:OnDeclineBuddyRequest(message.name)
 	end
@@ -524,7 +539,7 @@ function opt:HandleMessage(message)
 					if (opt.InRaid) then mode = "raid" else mode = "party" end
 
 					-- don't allow any more automatic buddy requests from this player
-					opt:RequestPIBuddy(message.name, mode)
+					opt:RequestPIBuddy(message.name, mode, message.realm)
 					ignore_list[strlower(message.name)] = true
 				end
 				return

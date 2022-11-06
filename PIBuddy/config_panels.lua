@@ -1,5 +1,5 @@
 local opt = PIBuddyConfig
-local ADDON_VERSION = "1.09"
+local ADDON_VERSION = "1.10"
 
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
@@ -138,6 +138,32 @@ function opt:CreateWidgets()
 		opt:AddTooltip(opt.ui.showPIMe, opt.titles.ShowPiMeHeader, opt.titles.ShowPiMeTooltip)
 	end
 
+	if (not opt.IsPriest) then
+		opt.ui.warnNoBuddy = opt:CreateCheckBox(opt, 'WarnNoBuddy')
+		opt.ui.warnNoBuddy:SetPoint("TOPLEFT", opt.ui.showPIMe, "TOPLEFT", 0, -25)
+		opt.ui.warnNoBuddy:SetScript('OnClick', function(self, event, ...)
+				opt:CheckBoxOnClick(self)
+				opt:ForceUiUpdate()
+			end)
+		opt:AddTooltip(opt.ui.warnNoBuddy, opt.titles.WarnNoBuddyHeader, opt.titles.WarnNoBuddyTooltip)
+	end
+
+	--[[
+	opt.ui.showFocusMe = opt:CreateCheckBox(opt, 'ShowFocusMe')
+	opt.ui.showFocusMe:SetPoint("TOPLEFT", opt.ui.showPIMe, "TOPLEFT", 0, -25)
+	opt.ui.showFocusMe:SetScript('OnClick', function(self, event, ...)
+			opt:CheckBoxOnClick(self)
+			opt:ForceUiUpdate()
+		end)
+	if (not opt.IsPriest) then
+		opt.ui.showFocusMe:Disable()
+		opt.ui.showFocusMe.label:SetAlpha(0.5)
+		opt:AddTooltip(opt.ui.showPIMe, opt.titles.TooltipUnavailable, opt.titles.PriestOnlyTooltip)
+	else
+		opt:AddTooltip(opt.ui.showPIMe, opt.titles.ShowFocusMeHeader, opt.titles.ShowFocusMeTooltip)
+	end
+	]]--
+
 	-- column 3
 
 	
@@ -193,6 +219,20 @@ function opt:CreateWidgets()
 		end)
 	opt:AddTooltip(opt.ui.allowOneWay, opt.titles.AllowOneWayHeader, opt.titles.AllowOneWayTooltip)
 
+	-- MACROS!
+
+	if (opt.IsPriest) then
+
+		local pi_macros = CreateFrame('FRAME', 'PIBuddyMacros', opt)
+		pi_macros.name = 'PI Macros'
+		pi_macros.ShouldResetFrames = false
+		pi_macros.parent = opt.name
+		InterfaceOptions_AddCategory(pi_macros)
+
+		opt:CreatePIMacroPanel(true, pi_macros, 25, -48)
+		opt:CreatePIMacroPanel(false, pi_macros, 25, -330)
+	end
+
 end
 
 function opt:CreatePartyConfig()
@@ -222,7 +262,8 @@ local COPY_TARGET_OFFSET_Y = -4
 function opt:OnBuddyRequestButton(editbox, button, mode)
 
 	-- don't send a buddy request to yourself
-	if (strlower(editbox:GetText()) == strlower(opt.PlayerName)) then
+	local edit_text = strlower(editbox:GetText())
+	if (edit_text == strlower(opt.PlayerName)) then
 		editbox:SetText('')
 		editbox:SetCursorPosition(0)
 	else
@@ -317,7 +358,8 @@ function opt:UpdateBuddyStatusUi()
 end
 
 function opt:ApplyBuddy(frame, button, is_dps, is_raid)
-	if (strlower(frame:GetText()) == strlower(opt.PlayerName)) then
+	local frameText = strlower(frame:GetText())
+	if (frameText == strlower(opt.PlayerName)) then
 		frame:SetText('')
 	else
 		if (is_dps) then
@@ -391,8 +433,8 @@ function opt:CreatePartyDpsBuddy()
 	opt.ui.dpsSetTargetBtn:SetHeight(BUTTON_HEIGHT)
 	opt.ui.dpsSetTargetBtn:SetText(opt.titles.SetAsTargetBtn)
 	opt.ui.dpsSetTargetBtn:SetScript("OnClick", function(self, arg1)
-		if (UnitIsPlayer("target") and UnitName("target") and UnitName("target") ~= opt.PlayerName) then
-			opt.ui.dpsEditBox:SetText(UnitName("target"))
+		if (UnitIsPlayer("target") and GetUnitName("target", true) and GetUnitName("target", true) ~= opt.PlayerName) then
+			opt.ui.dpsEditBox:SetText(GetUnitName("target", true))
 			opt.ui.dpsEditBox:SetCursorPosition(0)
 		end
 	end)
@@ -465,8 +507,8 @@ function opt:CreatePartyPriestBuddy()
 	opt.ui.priestSetTargetBtn:SetHeight(20)
 	opt.ui.priestSetTargetBtn:SetText(opt.titles.SetAsTargetBtn)
 	opt.ui.priestSetTargetBtn:SetScript("OnClick", function(self, arg1)
-		if (UnitIsPlayer("target") and UnitName("target") and UnitName("target") ~= opt.PlayerName) then
-			opt.ui.priestEditBox:SetText(UnitName("target"))
+		if (UnitIsPlayer("target") and GetUnitName("target", true) and GetUnitName("target", true) ~= opt.PlayerName) then
+			opt.ui.priestEditBox:SetText(GetUnitName("target", true))
 			opt.ui.priestEditBox:SetCursorPosition(0)
 		end
 	end)
@@ -558,8 +600,8 @@ function opt:CreateRaidDpsBuddy()
 	opt.ui.raid_dpsSetTargetBtn:SetHeight(BUTTON_HEIGHT)
 	opt.ui.raid_dpsSetTargetBtn:SetText(opt.titles.SetAsTargetBtn)
 	opt.ui.raid_dpsSetTargetBtn:SetScript("OnClick", function(self, arg1)
-		if (UnitIsPlayer("target") and UnitName("target") and UnitName("target") ~= opt.PlayerName) then
-			opt.ui.raid_dpsEditBox:SetText(UnitName("target"))
+		if (UnitIsPlayer("target") and GetUnitName("target", true) and GetUnitName("target", true) ~= opt.PlayerName) then
+			opt.ui.raid_dpsEditBox:SetText(GetUnitName("target", true))
 			opt.ui.raid_dpsEditBox:SetCursorPosition(0)
 		end
 	end)
@@ -631,8 +673,8 @@ function opt:CreateRaidPriestBuddy()
 	opt.ui.raid_priestSetTargetBtn:SetHeight(BUTTON_HEIGHT)
 	opt.ui.raid_priestSetTargetBtn:SetText(opt.titles.SetAsTargetBtn)
 	opt.ui.raid_priestSetTargetBtn:SetScript("OnClick", function(self, arg1)
-		if (UnitIsPlayer("target") and UnitName("target") and UnitName("target") ~= opt.PlayerName) then
-			opt.ui.raid_priestEditBox:SetText(UnitName("target"))
+		if (UnitIsPlayer("target") and GetUnitName("target", true) and GetUnitName("target", true) ~= opt.PlayerName) then
+			opt.ui.raid_priestEditBox:SetText(GetUnitName("target", true))
 			opt.ui.raid_priestEditBox:SetCursorPosition(0)
 		end
 	end)
@@ -1027,7 +1069,8 @@ function opt:CreatePriestConfig()
 	opt:AddTooltip(opt.ui.warnNoPI, opt.titles.WarnNoPowerInfusionHeader, opt.titles.WarnNoPowerInfusionTooltip)
 	opt:AddTooltip(opt.ui.warnNoTwins, opt.titles.WarnNoTwinsHeader, opt.titles.WarnNoTwinsTooltip)
 end
-	
+
+
 -- Widget Visiblility
 
 function opt:ForceUiUpdate()
@@ -1040,18 +1083,27 @@ function opt:ForceUiUpdate()
 		BuddyInfo = opt.PriestInfo
 	end
 
+	local show = true
 	if (opt.env.ShowButton == 4) then -- show never
-		opt:HideMainFrame()
+		show = false
 	elseif (not opt.env.ShowPriest and not opt.env.ShowDps) then -- both 'show' buttons hidden
-		opt:HideMainFrame()
+		show = false
 	elseif (not opt.InCombat and opt.env.ShowButton == 2) then -- in combat only
-		opt:HideMainFrame()
+		show = false
 	elseif (not opt.InGroup and opt.env.ShowButton == 3) then -- in group only
-		opt:HideMainFrame()
+		show = false
 	elseif ((not BuddyInfo.name or BuddyInfo.name == "") and opt.env.ShowButton == 5) then
-		opt:HideMainFrame()
+		show = false
 	else
-		opt:ShowMainFrame()
+		show = true
+	end
+
+	if (show) then
+		if (not opt.main:IsShown()) then
+			opt:ShowMainFrame()
+		end
+	elseif (opt.main:IsShown()) then
+		opt:HideMainFrame()
 	end
 	
 	opt:SetMainFrameBackgroundVisible(opt.env.ShowBackground)
@@ -1059,6 +1111,7 @@ function opt:ForceUiUpdate()
 	opt:SetMainFramePriestVisible(opt.env.ShowPriest)
 	opt:SetMainFrameDpsVisible(opt.env.ShowDps)
 	opt:SetMainFramePiMeButton(opt.env.ShowPiMe)
+	--opt:SetMainFrameFocusMeButton(opt.env.ShowFocusMe)
 	opt:SetMainFrameCheckPriestVisibility()
 	opt:SetMainFrameCheckDpsVisibility()
 	opt:SetMainFrameNoBuddyWarningVisible(opt.env.WarnNoBuddy)

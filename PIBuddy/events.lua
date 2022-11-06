@@ -47,7 +47,7 @@ opt:RegisterEvent("PLAYER_REGEN_DISABLED")
 opt:RegisterEvent("PLAYER_REGEN_ENABLED")
 opt:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 opt:RegisterEvent("GROUP_ROSTER_UPDATE")
-opt:RegisterEvent("PLAYER_TALENT_UPDATE")
+opt:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 opt:RegisterEvent("TRAIT_CONFIG_UPDATED")
 opt:RegisterEvent("PLAYER_FOCUS_CHANGED")
 opt:RegisterEvent("PLAYER_DEAD")
@@ -78,15 +78,19 @@ function opt:OnCombatEvent(...)
 
 		-- In one-way mode, check if the DPS player gained their cooldown
 		if (opt:IsOneWayEnabled()) then
-
+			
 			if (opt.IsPriest and destGUID == opt.DpsInfo.guid) then
-
 				local spell_id = select(12,...)
-
 				local default = DPSBuddyEstimates[spell_id]
 				if (default) then
 					opt:SetDpsSpellId(spell_id)
-					opt:OnReceivedDpsActivity(default[2])
+
+					local query_duration = opt:GetAuraDuration(spell_id, opt.DpsInfo.unit_id)
+					if (query_duration > 0) then
+						opt:OnReceivedDpsActivity(query_duration)
+					else
+						opt:OnReceivedDpsActivity(default[2])
+					end
 				end
 			end
 		end
@@ -141,7 +145,12 @@ function opt:OnCombatEvent(...)
 						opt.DpsInfo.spell_id = spell_id
 						opt:SetDpsSpellId(spell_id)
 						opt:OnReceivedDpsCooldown(default[1])
-						opt:OnReceivedDpsActivity(default[2])
+						local query_duration = opt:GetAuraDuration(spell_id, opt.DpsInfo.unit_id)
+						if (query_duration > 0) then
+							opt:OnReceivedDpsActivity(query_duration)
+						else
+							opt:OnReceivedDpsActivity(default[2])
+						end
 					end
 				end
 			else
@@ -185,6 +194,7 @@ end
 -- Event Handlers
 
 local function PIBuddy_EventHandler(self, event, ...)
+
 	if (event == "PLAYER_LOGIN") then
 		opt:OnLogin()
 	elseif (event == "PLAYER_LOGOUT") then
@@ -199,7 +209,7 @@ local function PIBuddy_EventHandler(self, event, ...)
 		opt:OnLeaveCombat()
 	elseif (event == "GROUP_ROSTER_UPDATE") then
 		opt:OnGroupChanged()
-	elseif (event == "PLAYER_TALENT_UPDATE") then
+	elseif (event == "PLAYER_SPECIALIZATION_CHANGED") then
 		opt:OnTalentsChanged()
 	elseif (event == "PARTY_CONVERTED_TO_RAID") then
 		opt:OnGroupChanged()
