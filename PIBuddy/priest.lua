@@ -194,7 +194,7 @@ end
 
 function opt:UpdatePIAlpha()
 	if (opt.PriestInfo.is_dead) then
-		main.coolDownSpellTexture.texture:SetAlpha(0.25)
+		main.piSpellTexture.texture:SetAlpha(0.25)
 	elseif (opt.PriestInfo.spell_id > 0) then
 		if (PI_Active) then
 			main.piSpellTexture.texture:SetAlpha(1)

@@ -116,6 +116,7 @@ PIBuddyClassList = {
 	[7] = {
 		[262] = { -- Elemental
 			[1] = { 198067 }, -- Fire Elemental (pet)
+			[2] = { 114051 }, -- Ascendance
 		},
 		[263] = { -- Enhancement
 			[1] = { 51533 }, -- Feral Spirit
