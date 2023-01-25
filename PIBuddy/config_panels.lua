@@ -1,5 +1,5 @@
 local opt = PIBuddyConfig
-local ADDON_VERSION = "1.13"
+local ADDON_VERSION = "1.14"
 
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
