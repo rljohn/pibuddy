@@ -435,11 +435,11 @@ function opt:OnReceivedDpsActivity(active_time)
 		if (playSound) then
 			if (opt.env.DpsCooldownAudio and opt.env.DpsCooldownAudio ~= "None") then
 				if (opt.env.DpsCooldownAudio == "Power Infusion") then
-					PlaySound(170678)
+					PlaySound(170678, "Master")
 				else
 					local soundFile = media:Fetch("sound", opt.env.DpsCooldownAudio)
 					if (soundFile) then
-						PlaySoundFile(soundFile)
+						PlaySoundFile(soundFile, "Master")
 					end
 				end
 			end

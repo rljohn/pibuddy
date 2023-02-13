@@ -224,11 +224,11 @@ function opt:BeginPiMeGlow(include_main_frame)
 		-- play a noise
 		if (opt.env.PiMeAudio and opt.env.PiMeAudio ~= "None") then
 			if (opt.env.PiMeAudio == "Power Infusion") then
-				PlaySound(170678)
+				PlaySound(170678, "Master")
 			else
 				local soundFile = media:Fetch("sound", opt.env.PiMeAudio)
 				if (soundFile) then
-					PlaySoundFile(soundFile)
+					PlaySoundFile(soundFile, "Master")
 				end
 			end
 		end

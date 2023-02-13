@@ -1,5 +1,5 @@
 local opt = PIBuddyConfig
-local ADDON_VERSION = "1.14"
+local ADDON_VERSION = "1.15"
 
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
@@ -834,7 +834,7 @@ function opt:CreateCooldownSoundWidgets()
 			powerInfusion.value = "Power Infusion"
 			powerInfusion.func = function(self)
 				opt.env.DpsCooldownAudio = self.value
-				PlaySound(170678)
+				PlaySound(170678, "Master")
 				LibDD:CloseDropDownMenus()
 				LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.DpsCooldownSound, opt.env.DpsCooldownAudio)
 			end
@@ -943,7 +943,7 @@ function opt:CreatePiMeSoundWidgets()
 			powerInfusion.value = "Power Infusion"
 			powerInfusion.func = function(self)
 				opt.env.PiMeAudio = self.value
-				PlaySound(170678)
+				PlaySound(170678, "Master")
 				LibDD:CloseDropDownMenus()
 				LibDD:UIDropDownMenu_SetSelectedValue(opt.ui.PiMeCooldownSound, opt.env.PiMeAudio)
 			end
