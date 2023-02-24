@@ -30,7 +30,8 @@ PIBuddyClassList = {
 			[2] = { 327193 }, -- Moment of Glory
 		},
 		[70] = { -- Retribution
-			[1] = { 31884 }, -- Avenging Wrath
+			[1] = { 231895 }, -- Crusade
+			[2] = { 31884 }, -- Avenging Wrath
 		},
 	},
 	
@@ -234,16 +235,19 @@ DPSBuddySpellActiveTime = {
 -- When running in one-sided mode, the best we can do is guess.
 -- [1] = cooldown
 -- [2] = duration
+-- [3] = min_duration
+-- [4] = icon spell_id
 DPSBuddyEstimates = {
 
 	-- Warrior
 	[107574] 	= { 90, 20 }, -- Avatar
 	[376079] 	= { 90, 8 }, -- Spear of Bastion (players likely to take this will take +3 seconds talent)
 	[167105] 	= { 45, 10 }, -- Colossus Smash
-	[1719] 		= { 90, 12 }, -- Recklessness
+	[1719] 		= { 90, 12, 10 }, -- Recklessness
 
 	-- Paladin
-	[31884] 	= { 120, 20 }, -- Avenging Wrath
+	[31884] 	= { 120, 20, 15 }, -- Avenging Wrath
+	[231895]	= { 120, 25, 20 }, -- Crusade
 	[327193] 	= { 327193, 15 }, -- Moment of Glory
 
 	-- Hunter
@@ -262,7 +266,7 @@ DPSBuddyEstimates = {
 	[385627] 	= { 60, 14 }, -- Kingsbane
 	[13750] 	= { 180, 20 }, -- Adrenaline Rush
 	[343142] 	= { 120, 10 }, -- Dreadblades
-	[13877] 	= { 30, 10 }, -- Blade Flurry
+	-- [13877] 	= { 30, 10 }, -- Blade Flurry (procs pasively, not worth looking at)
 	[121471] 	= { 180, 20 }, -- Shadow Blades
 	[384631] 	= { 90, 24 }, -- Flagellation (lasts 12 seconds after effect ends)
 
@@ -289,6 +293,7 @@ DPSBuddyEstimates = {
 
 	-- Mage
 	[365350] 	= { 90, 12 }, -- Arcane Surge
+	[365362]	= { 90, 12, 12, 365350 }, -- Arcane Surge (Aura)
 	[190319] 	= { 120, 12 }, -- Combustion
 	[12472] 	= { 180, 25 }, -- Icy Veins
 
@@ -314,7 +319,8 @@ DPSBuddyEstimates = {
 	[50334] 	= { 180, 15 }, -- Berserk (Guardian)
 
 	-- Demon Hunter
-	[191427] 	= { 240, 24 }, -- Metamorphosis (Havoc)
+	[191427] 	= { 240, 24 }, -- Metamorphosis (Havoc - Spell)
+	[162264]	= { 240, 24, 0, 191427 }, -- Metamorphosis (Havoc - Aura) 
 	[187827] 	= { 240, 15 }, -- Metamorphosis (Vengeance)
 
 	-- Evoker

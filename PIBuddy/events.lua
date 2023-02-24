@@ -83,10 +83,17 @@ function opt:OnCombatEvent(...)
 				local spell_id = select(12,...)
 				local default = DPSBuddyEstimates[spell_id]
 				if (default) then
-					opt:SetDpsSpellId(spell_id)
 
+					if (default[4]) then
+						opt:SetDpsSpellId(default[4])
+					else
+						opt:SetDpsSpellId(spell_id)
+					end
+					
 					local query_duration = opt:GetAuraDuration(spell_id, opt.DpsInfo.unit_id)
-					if (query_duration > 0) then
+					if (default[3] and query_duration < default[3]) then
+						-- ignore, duration was too short
+					elseif (query_duration > 0) then
 						opt:OnReceivedDpsActivity(query_duration)
 					else
 						opt:OnReceivedDpsActivity(default[2])
@@ -142,11 +149,20 @@ function opt:OnCombatEvent(...)
 					-- if we found one, pretend like they just told us they cast this ability.
 					-- use default timers for the time remaining
 					if (default) then
-						opt.DpsInfo.spell_id = spell_id
-						opt:SetDpsSpellId(spell_id)
+
+						if (default[4]) then
+							opt.DpsInfo.spell_id = default[4]
+							opt:SetDpsSpellId(default[4])
+						else
+							opt.DpsInfo.spell_id = spell_id
+							opt:SetDpsSpellId(spell_id)
+						end
+
 						opt:OnReceivedDpsCooldown(default[1])
 						local query_duration = opt:GetAuraDuration(spell_id, opt.DpsInfo.unit_id)
-						if (query_duration > 0) then
+						if (default[3] and query_duration < default[3]) then
+							-- ignore, duration was too short
+						elseif (query_duration > 0) then
 							opt:OnReceivedDpsActivity(query_duration)
 						else
 							opt:OnReceivedDpsActivity(default[2])

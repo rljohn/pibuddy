@@ -499,6 +499,7 @@ function opt:SetBuddyTarget()
 		end
 	end
 
+	opt:ResetDpsUi()
 	opt:SyncInfo()
 	opt:ForceUiUpdate()
 end
