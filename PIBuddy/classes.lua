@@ -311,7 +311,7 @@ DPSBuddyEstimates = {
 	-- Druid
 	[102560] 	= { 180, 30 }, -- Incarnation: Chosen of Elune
 	[391528] 	= { 120, 4 }, -- Convoke the Spirits
-	[194223] 	= { 180, 20 }, -- Celestial Alignment
+	[194223] 	= { 180, 20, 16 }, -- Celestial Alignment
 	[323546]	= { 180, 20 }, -- Ravenous Frenzy
 	[102543] 	= { 180, 30 }, -- Incarnation: Avatar of Ashamane
 	[106951] 	= { 180, 20 }, -- Berserk (Feral)
