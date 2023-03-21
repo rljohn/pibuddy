@@ -85,13 +85,16 @@ function opt:OnCombatEvent(...)
 				if (default) then
 
 					if (default[4]) then
+						opt.DpsInfo.spell_id = default[4]
 						opt:SetDpsSpellId(default[4])
 					else
 						opt:SetDpsSpellId(spell_id)
 					end
 					
 					local query_duration = opt:GetAuraDuration(spell_id, opt.DpsInfo.unit_id)
-					if (default[3] and query_duration < default[3]) then
+					local min_duration = default[3]
+
+					if (min_duration and query_duration < min_duration) then
 						-- ignore, duration was too short
 					elseif (query_duration > 0) then
 						opt:OnReceivedDpsActivity(query_duration)
@@ -160,11 +163,13 @@ function opt:OnCombatEvent(...)
 
 						opt:OnReceivedDpsCooldown(default[1])
 						local query_duration = opt:GetAuraDuration(spell_id, opt.DpsInfo.unit_id)
-						if (default[3] and query_duration < default[3]) then
+
+						local min_duration = default[3]
+						if (min_duration and query_duration < min_duration) then
 							-- ignore, duration was too short
 						elseif (query_duration > 0) then
 							opt:OnReceivedDpsActivity(query_duration)
-						else
+						elseif (min_duration == nil) then
 							opt:OnReceivedDpsActivity(default[2])
 						end
 					end

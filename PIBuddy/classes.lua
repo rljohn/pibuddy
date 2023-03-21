@@ -319,16 +319,16 @@ DPSBuddyEstimates = {
 	[50334] 	= { 180, 15 }, -- Berserk (Guardian)
 
 	-- Demon Hunter
-	[191427] 	= { 240, 24 }, -- Metamorphosis (Havoc - Spell)
-	[162264]	= { 240, 24, 0, 191427 }, -- Metamorphosis (Havoc - Aura) 
-	[187827] 	= { 240, 15 }, -- Metamorphosis (Vengeance)
+	[191427] 	= { 240, 24, 20 }, -- Metamorphosis (Havoc - Spell)
+	[162264]	= { 240, 24, 20, 191427 }, -- Metamorphosis (Havoc - Aura) 
+	[187827] 	= { 240, 15, 12 }, -- Metamorphosis (Vengeance)
 
 	-- Evoker
 	[375087] 	= { 120, 14 }, -- Dragonrage
 }
 
 function opt:GetClassInfo(class_id)
-	if (PIBuddyClassList[class_id] == nil) then return nil end	
+	if (PIBuddyClassList[class_id] == nil) then return nil end
 	return PIBuddyClassList[class_id]
 end
 
