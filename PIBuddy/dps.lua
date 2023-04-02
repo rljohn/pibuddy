@@ -119,6 +119,7 @@ end
 
 function opt:ResetDpsUi()
 	if (not main) then return end
+	main.coolDownSpellTexture.texture:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark");
 	opt:OnReceivedDpsActivity(-1)
 	opt:OnReceivedDpsCooldown(0)
 end
