@@ -39,7 +39,7 @@ function opt:CreateDpsWidgets(m)
 	main.coolDownSpellTexture:SetScript('OnMouseDown', function(self, button, ...)
 
 		-- click through to the main frame for drag
-		if (button == "LeftButton") then 
+		if (button == "LeftButton" and opt.env.LockButton == false) then 
 			main:StartMoving()
 			return
 		end
