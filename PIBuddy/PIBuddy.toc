@@ -5,6 +5,8 @@
 ## OptionalDeps: _DebugLog
 ## SavedVariables: PIBuddyConfig
 ## SavedVariablesPerCharacter: PIBuddyPerCharacterConfig
+## IconTexture: 135939
+## AddonCompartmentFunc: PIBuddy_OnAddonCompartmentClick
 
 embeds.xml
 

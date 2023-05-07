@@ -350,6 +350,10 @@ function opt:CreateMinimapIcon()
 		opt:MinimapUpdate()
 end
 
+function PIBuddy_OnAddonCompartmentClick(addonName, buttonName)
+	opt:Config()
+end
+
 function opt:MinimapUpdate()
 	if (not opt.ui.MinimapIcon) then return end
 	if (opt.env.ShowMinimapIcon) then
