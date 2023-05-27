@@ -294,7 +294,7 @@ DPSBuddyEstimates = {
 	-- Mage
 	[365350] 	= { 90, 12 }, -- Arcane Surge
 	[365362]	= { 90, 12, 12, 365350 }, -- Arcane Surge (Aura)
-	[190319] 	= { 120, 12 }, -- Combustion
+	[190319] 	= { 120, 12, 8 }, -- Combustion
 	[12472] 	= { 180, 25 }, -- Icy Veins
 
 	-- Warlock
@@ -309,13 +309,13 @@ DPSBuddyEstimates = {
 	[123904] 	= { 120, 24 }, -- Invoke Xuen, the White Tiger
 
 	-- Druid
-	[102560] 	= { 180, 30 }, -- Incarnation: Chosen of Elune
+	[102560] 	= { 180, 30, 14 }, -- Incarnation: Chosen of Elune
 	[391528] 	= { 120, 4 }, -- Convoke the Spirits
 	[194223] 	= { 180, 20, 16 }, -- Celestial Alignment
 	[323546]	= { 180, 20 }, -- Ravenous Frenzy
-	[102543] 	= { 180, 30 }, -- Incarnation: Avatar of Ashamane
+	[102543] 	= { 180, 30, 14 }, -- Incarnation: Avatar of Ashamane
 	[106951] 	= { 180, 20 }, -- Berserk (Feral)
-	[102558] 	= { 180, 30 }, -- Incarnation: Guardian of Ursoc
+	[102558] 	= { 180, 30, 14 }, -- Incarnation: Guardian of Ursoc
 	[50334] 	= { 180, 15 }, -- Berserk (Guardian)
 
 	-- Demon Hunter
