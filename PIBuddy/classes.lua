@@ -147,7 +147,6 @@ PIBuddyClassList = {
 		},
 		[266] = { -- Demonology
 			[1] = { 265187 }, -- Summon Demonic Tyrant (pet)
-			[2] = { 267217 }, -- Nether Portal
 		},
 		[267] = { -- Destruction
 			[1] = { 1122 }, -- Summon Infernal (pet)
