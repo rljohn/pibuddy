@@ -245,7 +245,7 @@ DPSBuddyEstimates = {
 	[1719] 		= { 90, 12, 10 }, -- Recklessness
 
 	-- Paladin
-	[31884] 	= { 120, 20, 15 }, -- Avenging Wrath
+	[31884] 	= { 60, 20, 15 }, -- Avenging Wrath
 	[231895]	= { 120, 25, 20 }, -- Crusade
 	[327193] 	= { 327193, 15 }, -- Moment of Glory
 
