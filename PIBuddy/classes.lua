@@ -294,7 +294,7 @@ DPSBuddyEstimates = {
 	[365350] 	= { 90, 12 }, -- Arcane Surge
 	[365362]	= { 90, 12, 12, 365350 }, -- Arcane Surge (Aura)
 	[190319] 	= { 120, 12, 8 }, -- Combustion
-	[12472] 	= { 180, 25 }, -- Icy Veins
+	[12472] 	= { 120, 25 }, -- Icy Veins
 
 	-- Warlock
 	[205180] 	= { 120, 20 }, -- Summon Darkglare
