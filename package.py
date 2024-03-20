@@ -4,7 +4,7 @@ import os
 from shutil import copytree, ignore_patterns
 from subprocess import check_output
 
-version = "1.25"
+version = "1.26"
 type = "release"
 
 addon_name = "PIBuddy"
