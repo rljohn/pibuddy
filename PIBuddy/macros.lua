@@ -71,7 +71,7 @@ function opt:CreatePIMacroPanel(party, parent, x, y)
 	editBox:SetCursorPosition(0)
 	editBox:SetAutoFocus(false)
 	editBox:SetJustifyH("LEFT")
-	editBox:SetJustifyV("CENTER")
+	--editBox:SetJustifyV("CENTER")
 	editBox:SetTextInsets(10, 10, 10, 10)
 
 	editBox:SetScript('OnEscapePressed', function(self)
