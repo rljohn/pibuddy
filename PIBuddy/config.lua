@@ -378,7 +378,7 @@ function opt:Unlock()
 end
 
 function opt:Config()
-	InterfaceOptionsFrame_OpenToCategory(opt)
+	Settings.OpenToCategory(opt.name)
 end
 
 -- tick functions
