@@ -170,7 +170,11 @@ function opt:OnLogin()
 	opt:CheckDpsBuddy()
 	
 	-- create panel
-	InterfaceOptions_AddCategory(opt)
+	local category, _ = Settings.RegisterCanvasLayoutCategory(opt, opt.name)
+	category.ID = opt.name
+	Settings.RegisterAddOnCategory(category)
+	opt.category = category
+	
 	opt:SetupLocale()
 	opt:CreateWidgets()
 	opt:CreateMainFrame()

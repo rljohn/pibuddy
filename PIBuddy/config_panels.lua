@@ -227,7 +227,8 @@ function opt:CreateWidgets()
 		pi_macros.name = 'PI Macros'
 		pi_macros.ShouldResetFrames = false
 		pi_macros.parent = opt.name
-		InterfaceOptions_AddCategory(pi_macros)
+		
+		local _, _ = Settings.RegisterCanvasLayoutSubcategory(opt.category, pi_macros, pi_macros.name)
 
 		opt:CreatePIMacroPanel(true, pi_macros, 25, -48)
 		opt:CreatePIMacroPanel(false, pi_macros, 25, -330)
