@@ -9,15 +9,16 @@ PIBuddyClassList = {
 			[1] = { 107574 }, -- Avatar
 			[2] = { 376079 }, -- Spear of Bastion
 			[3] = { 167105 }, -- Colossus Smash
+			[4]	= { 436358 }, -- Demolish
 		},
 		[72] = { -- Fury
 			[1] = { 1719 }, -- Recklessness
 			[2] = { 107574 }, -- Avatar
-			[3] = { 376079 }, -- Spear of Bastion
+			[3] = { 376079 }, -- Champion's Spear
 		},
 		[73] = { -- Protection
 			[1] = { 107574 }, -- Avatar
-			[2] = { 376079 }, -- Spear of Bastion
+			[2] = { 376079 }, -- Champion's Spear
 		},
 	},
 	
@@ -32,6 +33,7 @@ PIBuddyClassList = {
 		[70] = { -- Retribution
 			[1] = { 231895 }, -- Crusade
 			[2] = { 31884 }, -- Avenging Wrath
+			[3] = { 198034 }, -- Divine Hammer
 		},
 	},
 	
@@ -40,21 +42,16 @@ PIBuddyClassList = {
 		[253] = { -- Beast Mastery
 			[1] = { 19574 }, -- Bestial Wrath
 			[2] = { 359844 }, -- Call of the Wild
-			[3] = { 193530 }, -- Aspect of the Wild
-			[4] = { 201430 }, -- Stampede
-			[5] = { 321530 }, -- Bloodshed
-			[6] = { 328231 }, -- Wild Spirits
+			[3] = { 201430 }, -- Stampede
+			[4] = { 321530 }, -- Bloodshed
 		},
 		[254] = { -- Marksmanship
 			[1] = { 288613 }, -- Trueshot
-			[2] = { 201430 }, -- Stampede
-			[3] = { 328231 }, -- Wild Spirits
 		},
 		[255] = { -- Survival
 			[1] = { 360966 }, -- Spearhead
 			[2] = { 203415 }, -- Fury of the Eagle (debuff)
-			[3] = { 201430 }, -- Stampede
-			[4] = { 328231 }, -- Wild Spirits
+			[3] = { 360952 }, -- Coordinated Assault
 		},
 	},
 	
@@ -130,7 +127,8 @@ PIBuddyClassList = {
 	-- Mage
 	[8] = {
 		[62] = { -- Arcane
-			[1] = { 365350 } -- Arcane Surge
+			[1] = { 365350 }, -- Arcane Surge
+			[2] = { 12051 }, -- Evocation
 		},
 		[63] = { -- Fire
 			[1] = { 190319 } -- Combustion
@@ -144,12 +142,14 @@ PIBuddyClassList = {
 	[9] = {
 		[265] = { -- Affliction
 			[1] = { 205180 }, -- Summon Darkglare (pet)
+			[2] = { 442726 }, -- Malevelance
 		},
 		[266] = { -- Demonology
 			[1] = { 265187 }, -- Summon Demonic Tyrant (pet)
 		},
 		[267] = { -- Destruction
 			[1] = { 1122 }, -- Summon Infernal (pet)
+			[2] = { 442726 }, -- Malevelance
 		},
 	},
 	
