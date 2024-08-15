@@ -142,7 +142,7 @@ function opt:SetDpsSpellId(spell_id)
 		main.coolDownSpellTexture.texture:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark");
 		opt.DpsInfo.aura_id = 0
 	else
-		main.coolDownSpellTexture.texture:SetTexture(GetSpellTexture(opt.DpsInfo.spell_id))
+		main.coolDownSpellTexture.texture:SetTexture(C_Spell.GetSpellTexture(opt.DpsInfo.spell_id))
 		
 		local aura_id = DPSBuddySpellAuras[opt.DpsInfo.spell_id]
 		if (aura_id) then
@@ -345,13 +345,17 @@ function opt:UpdateDpsCooldown()
 
 	-- get CD from API
 	local spell_id = opt.DpsInfo.spell_id
-	start, duration, enabled = GetSpellCooldown(spell_id);
+	local spellCooldownInfo = C_Spell.GetSpellCooldown(spell_id);
+	local start = spellCooldownInfo.startTime
+	local duration = spellCooldownInfo.duration
+	local enabled = spellCooldownInfo.isEnabled
 
 	-- on CD behaviour
 	local on_cooldown = (start > 0)
 	if (on_cooldown) then
 		-- check if we're actually on CD, or its the GCD
-		gcd_start, gcd_duration, gcd_enable = GetSpellCooldown(61304)
+		local gcdInfo = C_Spell.GetSpellCooldown(61304);
+		local gcd_duration = gcdInfo.duration
 		if (duration > 0 and duration == gcd_duration) then
 			on_cooldown = false
 		end

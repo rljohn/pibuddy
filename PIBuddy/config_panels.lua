@@ -1,5 +1,5 @@
 local opt = PIBuddyConfig
-local ADDON_VERSION = "<VERSION>"
+local ADDON_VERSION = "1.30"
 
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
@@ -754,11 +754,11 @@ function opt:CreateCooldownConfig()
 			
 				for index,cooldown in opt:pairsByKeys ( spec_cds ) do
 					local spell_id = cooldown[1]
-					local spell_name = GetSpellInfo(spell_id)
+					local spell_name = C_Spell.GetSpellName(spell_id)
 					
 					local spell_id2 = cooldown[2]
 					if (spell_id2) then
-						local spell_name2 = GetSpellInfo(spell_id2)
+						local spell_name2 = C_Spell.GetSpellName(spell_id2)
 						spell_name = string.format("%s / %s", spell_name, spell_name2)
 					end
 					

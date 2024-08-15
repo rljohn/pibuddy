@@ -166,7 +166,7 @@ function opt:CreatePIMacroPanel(party, parent, x, y)
 end
 
 function opt:GetMacroText(party)
-    local text = '#showtooltip Power Infusion'
+    local text = '#showtooltip ' .. C_Spell.GetSpellName(opt.POWER_INFUSION)
 	
     -- trinkets
 
@@ -192,12 +192,12 @@ function opt:GetMacroText(party)
 
 	if (party) then
 		if (opt.env.DpsBuddy and opt.env.DpsBuddy ~= "") then
-			text = text .. string.format('\n/cast [@%s,help,nodead] Power Infusion', opt.env.DpsBuddy)
+			text = text .. string.format('\n/cast [@%s,help,nodead] %s', opt.env.DpsBuddy, C_Spell.GetSpellName(opt.POWER_INFUSION))
             text = text .. string.format('\n/stopmacro [@%s,help,nodead]', opt.env.DpsBuddy)
 		end
 	else
 		if (opt.env.RaidDpsBuddy and opt.env.RaidDpsBuddy ~= "") then
-			text = text .. string.format('\n/cast [@%s,help,nodead] Power Infusion', opt.env.RaidDpsBuddy)
+			text = text .. string.format('\n/cast [@%s,help,nodead] %s', opt.env.RaidDpsBuddy, C_Spell.GetSpellName(opt.POWER_INFUSION))
             text = text .. string.format('\n/stopmacro [@%s,help,nodead]', opt.env.RaidDpsBuddy)
 		end
 	end
@@ -205,14 +205,14 @@ function opt:GetMacroText(party)
 	-- focus
 
 		if ((party and opt.env.PIFocusParty) or (not party and opt.env.PIFocusRaid)) then
-			text = text .. '\n/cast [focus,help,nodead] Power Infusion'
+			text = text .. '\n/cast [focus,help,nodead] ' .. C_Spell.GetSpellName(opt.POWER_INFUSION)
 		end
 
 	-- friendly
 
 	if ((party and opt.env.PIFriendlyParty) or (not party and opt.env.PIFriendlyRaid)) then
 		text = text .. '\n/targetfriendplayer [nohelp]'
-		text = text .. '\n/cast [help] Power Infusion'
+		text = text .. '\n/cast [help] ' .. C_Spell.GetSpellName(opt.POWER_INFUSION)
 
 		if ((party and opt.env.PITargetLastTargetParty) or (not party and opt.env.PITargetLastTargetRaid)) then
 			text = text .. '\n/targetlasttarget [help]'
@@ -221,7 +221,7 @@ function opt:GetMacroText(party)
 
 	-- self
 
-	text = text .. '\n/cast [@player] Power Infusion'
+	text = text .. '\n/cast [@player] ' .. C_Spell.GetSpellName(opt.POWER_INFUSION)
 
     return text
 end

@@ -29,7 +29,7 @@ function opt:CreatePriestWidgets(m)
 	main.piSpellTexture:SetWidth(opt.env.IconSize)
 	main.piSpellTexture:SetHeight(opt.env.IconSize)
 	main.piSpellTexture.texture = main.piSpellTexture:CreateTexture(nil, "ARTWORK")
-	main.piSpellTexture.texture:SetTexture(GetSpellTexture(opt.POWER_INFUSION))
+	main.piSpellTexture.texture:SetTexture(C_Spell.GetSpellTexture(opt.POWER_INFUSION))
 	main.piSpellTexture.texture:SetAllPoints(main.piSpellTexture)
 	main.piSpellTexture.texture:SetTexCoord(ICON_ZOOM, 1-ICON_ZOOM, ICON_ZOOM, 1-ICON_ZOOM)
 
