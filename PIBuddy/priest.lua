@@ -332,13 +332,17 @@ function opt:UpdatePowerInfusionCooldown()
 	if (opt.PriestInfo.spell_id == 0) then return end
 
 	-- get CD from API
-	start, duration, enabled = GetSpellCooldown(opt.PriestInfo.spell_id);
+	local spellCooldownInfo = C_Spell.GetSpellCooldown(opt.PriestInfo.spell_id);
+	local start = spellCooldownInfo.startTime
+	local duration = spellCooldownInfo.duration
+	local enabled = spellCooldownInfo.isEnabled
 
 	-- on CD behaviour
 	local on_cooldown = (start > 0)
 	if (on_cooldown) then
 		-- check if we're actually on CD, or its the GCD
-		gcd_start, gcd_duration, gcd_enable = GetSpellCooldown(61304)
+		local spellCooldownInfo = C_Spell.GetSpellCooldown(61304);
+		local gcd_duration = spellCooldownInfo.duration
 		if (duration > 0 and duration == gcd_duration) then
 			on_cooldown = false
 		end
